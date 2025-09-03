@@ -27,7 +27,6 @@ A **Node.js + Express** based web application that helps schools track and manag
 - **Email Service**: Nodemailer  
 - **Version Control**: Git & GitHub  
 
----
 School-Tracking-App/
 │
 ├── public/ # Static files (HTML, CSS, JS)
@@ -45,5 +44,35 @@ School-Tracking-App/
    ```bash
    git clone https://github.com/Sapan02206/School-Tracking-App-2.git
    cd School-Tracking-App-2
-## 📂 Project Structure
+---
+
+
+---
+
+## ⚙️ Installation & Setup
+
+1. **Clone the repository**  
+   ```bash
+   git clone https://github.com/Sapan02206/School-Tracking-App-2.git
+   cd School-Tracking-App-2
+EMAIL_USER=your_email@example.com
+EMAIL_PASS=your_password
+node server.js
+The app will be live at: http://localhost:3000
+
+🔑 Login Credentials
+
+For testing purposes, you can use the following demo credentials:
+
+👨‍💼 Admin Login
+
+Username/Email: admin
+
+Password: admin123
+
+👨‍🎓 Student Login
+
+Username/Email: student
+
+Password: student123
 
