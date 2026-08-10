@@ -2237,7 +2237,7 @@
         if (email) {
           const batchName = getBatchNameById(batchId);
           const emailSubject = 'Welcome to Your Batch';
-          const emailBody = `Dear ${name},\n\nYou have been added to the batch "${batchName}".\nPlease login with your credentials to access the portal.\n\nRegards,\nSchool Administration`;
+          const emailBody = `Dear ${name},\n\nYou have been added to the batch "${batchName}".\n\nYour login credentials are:\nUsername: ${username}\nPassword: ${password}\n\nPlease login with these credentials to access the portal.\n\nRegards,\nSchool Administration`;
 
           fetch('/send-new-student-email', {
             method: 'POST',
