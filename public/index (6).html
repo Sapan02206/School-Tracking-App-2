@@ -641,7 +641,9 @@
 
     // Initialize data if not present
     function initData() {
+      console.log('🔄 Initializing data...');
       if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
+        console.log('📝 Creating default users...');
         // Default admin user: username: admin, password: admin123
         const users = [
           { id: 'admin-1', username: 'admin', password: 'admin123', role: 'admin', name: 'Admin User', email: 'admin@school.com', phone: '1234567890' },
@@ -649,13 +651,19 @@
           { id: 'student-2', username: 'student2', password: 'student123', role: 'student', name: 'Jane Smith', email: 'jane.smith@example.com', phone: '+19876543210', batchId: 'batch-2' },
         ];
         localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+        console.log('✅ Users created:', users.length);
+      } else {
+        const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS));
+        console.log('✅ Users already exist:', users.length);
       }
       if (!localStorage.getItem(STORAGE_KEYS.BATCHES)) {
+        console.log('📝 Creating default batches...');
         const batches = [
           { id: 'batch-1', name: 'Batch A' },
           { id: 'batch-2', name: 'Batch B' },
         ];
         localStorage.setItem(STORAGE_KEYS.BATCHES, JSON.stringify(batches));
+        console.log('✅ Batches created:', batches.length);
       }
       if (!localStorage.getItem(STORAGE_KEYS.ATTENDANCE)) {
         localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify([]));
@@ -666,6 +674,7 @@
       if (!localStorage.getItem(STORAGE_KEYS.RESULTS)) {
         localStorage.setItem(STORAGE_KEYS.RESULTS, JSON.stringify([]));
       }
+      console.log('✅ Data initialization complete!');
     }
 
     initData();
@@ -2009,13 +2018,26 @@
       }
 
       const users = getUsers();
+      console.log('🔍 Login attempt:', { username, role });
+      console.log('📋 Available users:', users.length);
+      
+      if (users.length === 0) {
+        console.error('❌ No users found! Reinitializing...');
+        initData();
+        alert('System initialized. Please try logging in again.');
+        return;
+      }
+      
       const user = users.find((u) => u.username === username && u.password === password && u.role === role);
 
       if (!user) {
+        console.error('❌ Login failed:', { username, role });
+        console.log('Available usernames:', users.map(u => `${u.username} (${u.role})`));
         alert('Invalid credentials or role.');
         return;
       }
 
+      console.log('✅ Login successful:', user.name);
       currentUser = user;
       setLoggedInUser(user);
 
