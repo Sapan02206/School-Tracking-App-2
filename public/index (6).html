@@ -642,39 +642,54 @@
     // Initialize data if not present
     function initData() {
       console.log('🔄 Initializing data...');
-      if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
-        console.log('📝 Creating default users...');
-        // Default admin user: username: admin, password: admin123
-        const users = [
-          { id: 'admin-1', username: 'admin', password: 'admin123', role: 'admin', name: 'Admin User', email: 'admin@school.com', phone: '1234567890' },
-          { id: 'student-1', username: 'student1', password: 'student123', role: 'student', name: 'John Doe', email: 'john.doe@example.com', phone: '+12345678901', batchId: 'batch-1' },
-          { id: 'student-2', username: 'student2', password: 'student123', role: 'student', name: 'Jane Smith', email: 'jane.smith@example.com', phone: '+19876543210', batchId: 'batch-2' },
-        ];
-        localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
-        console.log('✅ Users created:', users.length);
-      } else {
-        const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS));
-        console.log('✅ Users already exist:', users.length);
+      try {
+        if (!localStorage.getItem(STORAGE_KEYS.USERS)) {
+          console.log('📝 Creating default users...');
+          // Default admin user: username: admin, password: admin123
+          const users = [
+            { id: 'admin-1', username: 'admin', password: 'admin123', role: 'admin', name: 'Admin User', email: 'admin@school.com', phone: '1234567890' },
+            { id: 'student-1', username: 'student1', password: 'student123', role: 'student', name: 'John Doe', email: 'john.doe@example.com', phone: '+12345678901', batchId: 'batch-1' },
+            { id: 'student-2', username: 'student2', password: 'student123', role: 'student', name: 'Jane Smith', email: 'jane.smith@example.com', phone: '+19876543210', batchId: 'batch-2' },
+          ];
+          localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
+          
+          // Verify it was saved
+          const saved = localStorage.getItem(STORAGE_KEYS.USERS);
+          if (!saved) {
+            console.error('❌ Failed to save users to localStorage!');
+            alert('ERROR: Browser is blocking data storage. Please check browser settings or disable private browsing.');
+            return false;
+          }
+          console.log('✅ Users created and verified:', users.length);
+        } else {
+          const users = JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS));
+          console.log('✅ Users already exist:', users.length);
+        }
+        if (!localStorage.getItem(STORAGE_KEYS.BATCHES)) {
+          console.log('📝 Creating default batches...');
+          const batches = [
+            { id: 'batch-1', name: 'Batch A' },
+            { id: 'batch-2', name: 'Batch B' },
+          ];
+          localStorage.setItem(STORAGE_KEYS.BATCHES, JSON.stringify(batches));
+          console.log('✅ Batches created:', batches.length);
+        }
+        if (!localStorage.getItem(STORAGE_KEYS.ATTENDANCE)) {
+          localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify([]));
+        }
+        if (!localStorage.getItem(STORAGE_KEYS.EXAMS)) {
+          localStorage.setItem(STORAGE_KEYS.EXAMS, JSON.stringify([]));
+        }
+        if (!localStorage.getItem(STORAGE_KEYS.RESULTS)) {
+          localStorage.setItem(STORAGE_KEYS.RESULTS, JSON.stringify([]));
+        }
+        console.log('✅ Data initialization complete!');
+        return true;
+      } catch (error) {
+        console.error('❌ localStorage error:', error);
+        alert('ERROR: Cannot access browser storage. Error: ' + error.message);
+        return false;
       }
-      if (!localStorage.getItem(STORAGE_KEYS.BATCHES)) {
-        console.log('📝 Creating default batches...');
-        const batches = [
-          { id: 'batch-1', name: 'Batch A' },
-          { id: 'batch-2', name: 'Batch B' },
-        ];
-        localStorage.setItem(STORAGE_KEYS.BATCHES, JSON.stringify(batches));
-        console.log('✅ Batches created:', batches.length);
-      }
-      if (!localStorage.getItem(STORAGE_KEYS.ATTENDANCE)) {
-        localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify([]));
-      }
-      if (!localStorage.getItem(STORAGE_KEYS.EXAMS)) {
-        localStorage.setItem(STORAGE_KEYS.EXAMS, JSON.stringify([]));
-      }
-      if (!localStorage.getItem(STORAGE_KEYS.RESULTS)) {
-        localStorage.setItem(STORAGE_KEYS.RESULTS, JSON.stringify([]));
-      }
-      console.log('✅ Data initialization complete!');
     }
 
     initData();
@@ -2019,21 +2034,30 @@
 
       const users = getUsers();
       console.log('🔍 Login attempt:', { username, role });
-      console.log('📋 Available users:', users.length);
+      console.log('📋 Available users in localStorage:', users.length);
       
       if (users.length === 0) {
-        console.error('❌ No users found! Reinitializing...');
-        initData();
-        alert('System initialized. Please try logging in again.');
+        console.error('❌ CRITICAL: No users in localStorage!');
+        console.log('Checking localStorage directly...');
+        const raw = localStorage.getItem(STORAGE_KEYS.USERS);
+        console.log('Raw data:', raw);
+        
+        alert('ERROR: No users found. Browser may be blocking storage.\n\n' +
+              'Try:\n' +
+              '1. Disable private/incognito mode\n' +
+              '2. Check browser storage settings\n' +
+              '3. Try a different browser\n\n' +
+              'Check console (F12) for details.');
         return;
       }
       
       const user = users.find((u) => u.username === username && u.password === password && u.role === role);
 
       if (!user) {
-        console.error('❌ Login failed:', { username, role });
-        console.log('Available usernames:', users.map(u => `${u.username} (${u.role})`));
-        alert('Invalid credentials or role.');
+        console.error('❌ Login failed - Invalid credentials');
+        console.log('Available accounts:');
+        users.forEach(u => console.log(`  - ${u.username} (${u.role})`));
+        alert('Invalid username, password, or role.\n\nDefault credentials:\nAdmin: admin / admin123\nStudent: student1 / student123');
         return;
       }
 
