@@ -14,7 +14,9 @@ app.use(bodyParser.json());
 
 // Configure SMTP transporter
 const transporter = nodemailer.createTransport({
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 465,
+  secure: true, // use SSL
   auth: {
     user: process.env.EMAIL_USER || 'codewithsapan007@gmail.com',
     pass: process.env.EMAIL_PASS || 'mjepfsqgbkspcukz',
