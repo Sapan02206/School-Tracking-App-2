@@ -49,9 +49,68 @@
       left: auto !important;
       z-index: 60;
     }
+
+    /* Toast Notification */
+    #toast-container {
+      position: fixed;
+      top: 1.25rem;
+      right: 1.25rem;
+      z-index: 9999;
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+      pointer-events: none;
+    }
+    .toast {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      min-width: 280px;
+      max-width: 380px;
+      padding: 0.875rem 1rem;
+      border-radius: 0.625rem;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+      color: #fff;
+      font-size: 0.875rem;
+      line-height: 1.4;
+      pointer-events: all;
+      animation: toastIn 0.3s ease forwards;
+    }
+    .toast.hide {
+      animation: toastOut 0.3s ease forwards;
+    }
+    .toast-success { background: #4f46e5; }
+    .toast-error   { background: #dc2626; }
+    .toast-warning { background: #d97706; }
+    .toast-info    { background: #0891b2; }
+    .toast-icon { font-size: 1.1rem; margin-top: 1px; flex-shrink: 0; }
+    .toast-close {
+      margin-left: auto;
+      background: none;
+      border: none;
+      color: rgba(255,255,255,0.7);
+      cursor: pointer;
+      font-size: 1rem;
+      padding: 0;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .toast-close:hover { color: #fff; }
+    @keyframes toastIn {
+      from { opacity: 0; transform: translateX(60px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes toastOut {
+      from { opacity: 1; transform: translateX(0); }
+      to   { opacity: 0; transform: translateX(60px); }
+    }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
+
+  <!-- Toast Notification Container -->
+  <div id="toast-container"></div>
+
   <div id="app" class="flex-1 flex flex-col">
     <!-- Login Screen -->
     <div id="login-screen" class="flex flex-col items-center justify-center min-h-screen bg-white px-4">
@@ -660,7 +719,7 @@
           const saved = localStorage.getItem(STORAGE_KEYS.USERS);
           if (!saved || JSON.parse(saved).length === 0) {
             console.error('❌ Failed to save users to localStorage!');
-            alert('ERROR: Browser is blocking data storage. Please check browser settings or disable private browsing.');
+            showToast('ERROR: Browser is blocking data storage. Please disable private browsing.', 'error', 6000);
             return false;
           }
           console.log('✅ Users created and verified:', users.length);
@@ -693,7 +752,7 @@
         return true;
       } catch (error) {
         console.error('❌ localStorage error:', error);
-        alert('ERROR: Cannot access browser storage. Error: ' + error.message);
+        showToast('ERROR: Cannot access browser storage. Error: ' + error.message, 'error', 6000);
         return false;
       }
     }
@@ -1141,7 +1200,7 @@
       exams = exams.filter(e => e.batchId !== batchId);
       setExams(exams);
 
-      alert('Batch deleted successfully.');
+      showToast('Batch deleted successfully.', 'success');
 
       populateBatchesDropdowns();
       populateStudentsDropdowns();
@@ -1239,14 +1298,14 @@
           const newPassword = passwordInput.value;
 
           if (!newUsername || !newPassword) {
-            alert('Username and password cannot be empty.');
+            showToast('Username and password cannot be empty.', 'error');
             return;
           }
 
           const users = getUsers();
           // Check username uniqueness except current student
           if (users.some(u => u.username.toLowerCase() === newUsername.toLowerCase() && u.id !== studentId)) {
-            alert('Username already exists. Please choose another.');
+            showToast('Username already exists. Please choose another.', 'error');
             return;
           }
 
@@ -1255,7 +1314,7 @@
             users[index].username = newUsername;
             users[index].password = newPassword;
             setUsers(users);
-            alert('Student login credentials updated successfully.');
+            showToast('Student login credentials updated successfully.', 'success');
             populateStudentsDropdowns();
             updateStudentsListTable();
           }
@@ -1298,7 +1357,7 @@
       results = results.filter((r) => r.studentId !== studentId);
       setResults(results);
 
-      alert('Student deleted successfully.');
+      showToast('Student deleted successfully.', 'success');
       populateStudentsDropdowns();
       updateStudentsListTable();
       updateAttendanceRecordsTable();
@@ -1335,7 +1394,7 @@
       const status = attendanceForm['attendance-status'].value;
 
       if (!studentId || !batchId || !date || !status) {
-        alert('Please fill all attendance fields.');
+        showToast('Please fill all attendance fields.', 'error');
         return;
       }
 
@@ -1344,7 +1403,7 @@
       attendance.push({ studentId, batchId, date, status });
       setAttendance(attendance);
 
-      alert('Attendance uploaded successfully.');
+      showToast('Attendance uploaded successfully.', 'success');
 
       // Send email notification to student if email exists
       const studentEmail = getStudentEmailById(studentId);
@@ -1369,16 +1428,16 @@
         .then(response => response.json())
         .then(data => {
           if (data.success) {
-            alert('Attendance uploaded and email notification sent successfully.');
+            showToast('Attendance uploaded and email notification sent successfully.', 'success');
           } else {
-            alert('Attendance uploaded but failed to send email notification.');
+            showToast('Attendance uploaded but failed to send email notification.', 'warning');
           }
         })
         .catch(() => {
-          alert('Attendance uploaded but failed to send email notification.');
+          showToast('Attendance uploaded but failed to send email notification.', 'warning');
         });
       } else {
-        alert('Attendance uploaded successfully. Student email not found, so no email sent.');
+        showToast('Attendance uploaded. No student email found, so no email sent.', 'warning');
       }
 
       // Reset form
@@ -1400,7 +1459,7 @@
       const time = examTimeInput.value;
 
       if (!name || !batchId || !date || !time) {
-        alert('Please fill all exam schedule fields.');
+        showToast('Please fill all exam schedule fields.', 'error');
         return;
       }
 
@@ -1411,7 +1470,7 @@
       // Send email notification to batch students
       const batchStudents = getUsers().filter(u => u.role === 'student' && u.batchId === batchId && u.email);
       if (batchStudents.length === 0) {
-        alert('Exam added successfully. No students with email found in selected batch to send notifications.');
+        showToast('Exam added successfully. No students with email found in batch.', 'warning');
         examScheduleForm.reset();
         updateExamScheduleTable();
         return;
@@ -1438,12 +1497,12 @@
       })).then(results => {
         const allSuccess = results.every(r => r.success);
         if (allSuccess) {
-          alert('Exam added and email notifications sent successfully.');
+          showToast('Exam added and email notifications sent successfully.', 'success');
         } else {
-          alert('Exam added but some email notifications failed.');
+          showToast('Exam added but some email notifications failed.', 'warning');
         }
       }).catch(() => {
-        alert('Exam added but failed to send email notifications.');
+        showToast('Exam added but failed to send email notifications.', 'warning');
       }).finally(() => {
         examScheduleForm.reset();
         updateExamScheduleTable();
@@ -1457,20 +1516,20 @@
       const title = resultTitleInput.value.trim();
       const resultDate = resultDateInput.value;
       if (!studentId) {
-        alert('Please select a student.');
+        showToast('Please select a student.', 'error');
         return;
       }
       if (!title) {
-        alert('Please enter a result title.');
+        showToast('Please enter a result title.', 'error');
         return;
       }
       if (!resultDate) {
-        alert('Please enter a result date.');
+        showToast('Please enter a result date.', 'error');
         return;
       }
       const subjectRows = subjectsContainer.querySelectorAll('.subject-row');
       if (subjectRows.length === 0) {
-        alert('Please add at least one subject.');
+        showToast('Please add at least one subject.', 'error');
         return;
       }
 
@@ -1497,7 +1556,7 @@
       });
 
       if (!valid) {
-        alert('Please fill all subject fields correctly and ensure marks obtained are not greater than total marks.');
+        showToast('Please fill all subject fields correctly. Marks obtained cannot exceed total marks.', 'error');
         return;
       }
 
@@ -1516,7 +1575,7 @@
 
       setResults(results);
 
-      alert('Results uploaded successfully.');
+      showToast('Results uploaded successfully.', 'success');
 
       // Send email notification to student if email exists
       const studentEmail = getStudentEmailById(studentId);
@@ -1538,16 +1597,16 @@
         .then(response => response.json())
         .then(data => {
           if (data.success) {
-            alert('Results uploaded and email notification sent successfully.');
+            showToast('Results uploaded and email notification sent successfully.', 'success');
           } else {
-            alert('Results uploaded but failed to send email notification.');
+            showToast('Results uploaded but failed to send email notification.', 'warning');
           }
         })
         .catch(() => {
-          alert('Results uploaded but failed to send email notification.');
+          showToast('Results uploaded but failed to send email notification.', 'warning');
         });
       } else {
-        alert('Results uploaded successfully. Student email not found, so no email sent.');
+        showToast('Results uploaded. No student email found, so no email sent.', 'warning');
       }
 
       resultForm.reset();
@@ -1600,7 +1659,7 @@
       removeBtns.forEach((btn) => {
         btn.onclick = (e) => {
           if (subjectsContainer.children.length === 1) {
-            alert('At least one subject is required.');
+            showToast('At least one subject is required.', 'error');
             return;
           }
           const row = e.target.closest('.subject-row');
@@ -1657,7 +1716,7 @@
             let allResults = getResults();
             allResults = allResults.filter(r => !(r.studentId === studentId && r.title === title && r.resultDate === resultDate));
             setResults(allResults);
-            alert('Result deleted successfully.');
+            showToast('Result deleted successfully.', 'success');
             updateResultsStudentCards();
             if (currentUser && currentUser.role === 'student' && currentUser.id === studentId) {
               updateStudentResultsList();
@@ -1853,20 +1912,20 @@
       const newPassword = adminPasswordInput.value;
 
       if (!name || !email || !phone || !newUsername) {
-        alert('Please fill all profile fields including username.');
+        showToast('Please fill all profile fields including username.', 'error');
         return;
       }
 
       const users = getUsers();
       const adminIndex = users.findIndex((u) => u.id === currentUser.id);
       if (adminIndex === -1) {
-        alert('Admin user not found.');
+        showToast('Admin user not found.', 'error');
         return;
       }
 
       // Check username uniqueness except current admin
       if (users.some((u, idx) => u.username.toLowerCase() === newUsername.toLowerCase() && idx !== adminIndex)) {
-        alert('Username already exists. Please choose another.');
+        showToast('Username already exists. Please choose another.', 'error');
         return;
       }
 
@@ -1881,7 +1940,7 @@
       currentUser = users[adminIndex];
       setLoggedInUser(currentUser);
       adminUsernameDisplay.textContent = currentUser.name;
-      alert('Profile updated successfully.');
+      showToast('Profile updated successfully.', 'success');
     });
 
     // Student profile form submit with username and password update
@@ -1901,20 +1960,20 @@
       const newPassword = studentPasswordInputProfile.value;
 
       if (!name || !phone || !newUsername) {
-        alert('Please fill all required profile fields including username.');
+        showToast('Please fill all required profile fields including username.', 'error');
         return;
       }
 
       const users = getUsers();
       const studentIndex = users.findIndex((u) => u.id === currentUser.id);
       if (studentIndex === -1) {
-        alert('Student user not found.');
+        showToast('Student user not found.', 'error');
         return;
       }
 
       // Check username uniqueness except current student
       if (users.some((u, idx) => u.username.toLowerCase() === newUsername.toLowerCase() && idx !== studentIndex)) {
-        alert('Username already exists. Please choose another.');
+        showToast('Username already exists. Please choose another.', 'error');
         return;
       }
 
@@ -1930,7 +1989,7 @@
       setLoggedInUser(currentUser);
       studentUsernameDisplay.textContent = currentUser.name;
       studentNameDisplay.textContent = currentUser.name;
-      alert('Profile updated successfully.');
+      showToast('Profile updated successfully.', 'success');
     });
 
     // Admin navigation buttons click
@@ -2034,7 +2093,7 @@
       const password = passwordInput.value;
 
       if (!role || !username || !password) {
-        alert('Please fill all login fields.');
+        showToast('Please fill all login fields.', 'error');
         return;
       }
 
@@ -2048,12 +2107,7 @@
         const raw = localStorage.getItem(STORAGE_KEYS.USERS);
         console.log('Raw data:', raw);
         
-        alert('ERROR: No users found. Browser may be blocking storage.\n\n' +
-              'Try:\n' +
-              '1. Disable private/incognito mode\n' +
-              '2. Check browser storage settings\n' +
-              '3. Try a different browser\n\n' +
-              'Check console (F12) for details.');
+        showToast('ERROR: No users found. Try disabling private/incognito mode or check browser storage settings.', 'error', 7000);
         return;
       }
       
@@ -2063,7 +2117,7 @@
         console.error('❌ Login failed - Invalid credentials');
         console.log('Available accounts:');
         users.forEach(u => console.log(`  - ${u.username} (${u.role})`));
-        alert('Invalid username, password, or role.\n\nDefault credentials:\nAdmin: admin / admin123\nStudent: student1 / student123');
+        showToast('Invalid username, password, or role. Default — Admin: admin / admin123 · Student: student1 / student123', 'error', 6000);
         return;
       }
 
@@ -2211,17 +2265,17 @@
       e.preventDefault();
       const batchName = batchNameInput.value.trim();
       if (!batchName) {
-        alert('Please enter a batch name.');
+        showToast('Please enter a batch name.', 'error');
         return;
       }
       const batches = getBatches();
       if (batches.some(b => b.name.toLowerCase() === batchName.toLowerCase())) {
-        alert('Batch name already exists.');
+        showToast('Batch name already exists.', 'error');
         return;
       }
       batches.push({ id: `batch-${Date.now()}`, name: batchName });
       setBatches(batches);
-      alert('Batch added successfully.');
+      showToast('Batch added successfully.', 'success');
       batchForm.reset();
       populateBatchesDropdowns();
       updateBatchesList();
@@ -2238,7 +2292,7 @@
       const batchId = studentBatchSelect.value;
 
       if (!name || !phone || !username || !password || !batchId) {
-        alert('Please fill all required fields.');
+        showToast('Please fill all required fields.', 'error');
         return;
       }
 
@@ -2247,7 +2301,7 @@
 
       // Check username uniqueness
       if (users.some(u => u.username.toLowerCase() === username.toLowerCase() && u.id !== editingId)) {
-        alert('Username already exists. Please choose another.');
+        showToast('Username already exists. Please choose another.', 'error');
         return;
       }
 
@@ -2262,7 +2316,7 @@
           users[index].password = password;
           users[index].batchId = batchId;
           setUsers(users);
-          alert('Student updated successfully.');
+          showToast('Student updated successfully.', 'success');
         }
         delete addStudentForm.dataset.editingId;
         addStudentForm.querySelector('button[type="submit"]').textContent = 'Add Student';
@@ -2283,7 +2337,7 @@
         };
         users.push(newStudent);
         setUsers(users);
-        alert('Student added successfully.');
+        showToast('Student added successfully.', 'success');
 
         // Send email notification to the new student if email exists
         if (email) {
@@ -2303,13 +2357,13 @@
           .then(response => response.json())
           .then(data => {
             if (data.success) {
-              alert('Student added and email notification sent successfully.');
+              showToast('Student added and email notification sent successfully.', 'success');
             } else {
-              alert('Student added but failed to send email notification.');
+              showToast('Student added but failed to send email notification.', 'warning');
             }
           })
           .catch(() => {
-            alert('Student added but failed to send email notification.');
+            showToast('Student added but failed to send email notification.', 'warning');
           });
         }
       }
@@ -2407,6 +2461,33 @@
         });
       }
     }
+  // ── Toast Notification System ──────────────────────────────────────────────
+    function showToast(message, type = 'info', duration = 4000) {
+      const icons = {
+        success: '✅',
+        error:   '❌',
+        warning: '⚠️',
+        info:    'ℹ️'
+      };
+      const container = document.getElementById('toast-container');
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      toast.innerHTML = `
+        <span class="toast-icon">${icons[type] || 'ℹ️'}</span>
+        <span class="toast-msg">${message}</span>
+        <button class="toast-close" aria-label="Close">✕</button>
+      `;
+      container.appendChild(toast);
+
+      const remove = () => {
+        toast.classList.add('hide');
+        toast.addEventListener('animationend', () => toast.remove(), { once: true });
+      };
+
+      toast.querySelector('.toast-close').addEventListener('click', remove);
+      setTimeout(remove, duration);
+    }
+
   </script>
 </body>
 </html>
