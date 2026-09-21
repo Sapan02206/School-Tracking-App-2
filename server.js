@@ -3,115 +3,92 @@ const nodemailer = require('nodemailer');
 const bodyParser = require('body-parser');
 const path = require('path');
 const cors = require('cors');
-require('dotenv').config(); // Load environment variables
+require('dotenv').config();
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
 app.use(cors());
 app.use(bodyParser.json());
+
+// Log env vars on startup (masked) so we can verify in Vercel logs
+console.log('EMAIL_USER:', process.env.EMAIL_USER ? process.env.EMAIL_USER : '❌ NOT SET');
+console.log('EMAIL_PASS:', process.env.EMAIL_PASS ? '✅ SET (hidden)' : '❌ NOT SET');
 
 // Configure SMTP transporter
 const transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.EMAIL_USER || 'codewithsapan007@gmail.com', // Your Gmail
-    pass: process.env.EMAIL_PASS || 'mjepfsqgbkspcukz',            // Your App Password
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   },
-  logger: true,
-  debug: true,
 });
 
-// Verify transporter
-transporter.verify((error, success) => {
-  if (error) {
-    console.error('Error configuring mail transporter:', error);
-  } else {
-    console.log('Mail transporter is ready');
-  }
-});
-
-// Email sending function
+// Generic email send function
 async function sendEmail(to, subject, text) {
-  const mailOptions = {
-    from: '"School Admin" <codewithsapan007@gmail.com>',
-    to,
-    subject,
-    text,
-  };
-
+  if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+    console.error('Email credentials not configured.');
+    return { success: false, error: 'Email credentials not set in environment variables.' };
+  }
   try {
-    const info = await transporter.sendMail(mailOptions);
+    const info = await transporter.sendMail({
+      from: `"School Admin" <${process.env.EMAIL_USER}>`,
+      to,
+      subject,
+      text,
+    });
     console.log('Email sent:', info.messageId);
     return { success: true };
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error('Error sending email:', error.message);
     return { success: false, error: error.message };
   }
 }
 
-// API Routes
+// Email API routes
 app.post('/send-attendance-email', async (req, res) => {
   const { to, subject, text } = req.body;
-  if (!to || !subject || !text) {
-    return res.status(400).json({ success: false, message: 'Missing required fields' });
-  }
+  if (!to || !subject || !text) return res.status(400).json({ success: false, message: 'Missing fields' });
   const result = await sendEmail(to, subject, text);
   res.json(result);
 });
 
 app.post('/send-exam-schedule-email', async (req, res) => {
   const { to, subject, text } = req.body;
-  if (!to || !subject || !text) {
-    return res.status(400).json({ success: false, message: 'Missing required fields' });
-  }
+  if (!to || !subject || !text) return res.status(400).json({ success: false, message: 'Missing fields' });
   const result = await sendEmail(to, subject, text);
   res.json(result);
 });
 
 app.post('/send-result-upload-email', async (req, res) => {
   const { to, subject, text } = req.body;
-  if (!to || !subject || !text) {
-    return res.status(400).json({ success: false, message: 'Missing required fields' });
-  }
+  if (!to || !subject || !text) return res.status(400).json({ success: false, message: 'Missing fields' });
   const result = await sendEmail(to, subject, text);
   res.json(result);
 });
 
 app.post('/send-new-student-email', async (req, res) => {
   const { to, subject, text } = req.body;
-  if (!to || !subject || !text) {
-    return res.status(400).json({ success: false, message: 'Missing required fields' });
-  }
+  if (!to || !subject || !text) return res.status(400).json({ success: false, message: 'Missing fields' });
   const result = await sendEmail(to, subject, text);
   res.json(result);
 });
 
-// Test email route
-app.get('/test-email', async (req, res) => {
-  try {
-    const info = await transporter.sendMail({
-      from: '"School Admin" <codewithsapan007@gmail.com>',
-      to: 'your-email@gmail.com', // Replace with your testing email
-      subject: 'Test Email from School Tracking Server',
-      text: 'This is a test email to verify your server config.',
-    });
-    res.send('Test email sent: ' + info.messageId);
-  } catch (error) {
-    console.error('Test email error:', error);
-    res.status(500).send('Failed to send test email.');
-  }
+// Health check — use this to verify the server is running on Vercel
+app.get('/health', (req, res) => {
+  res.json({
+    status: 'ok',
+    emailUser: process.env.EMAIL_USER ? process.env.EMAIL_USER : 'NOT SET',
+    emailPass: process.env.EMAIL_PASS ? 'SET' : 'NOT SET',
+  });
 });
 
-// Static files and default route moved to the bottom
+// Serve frontend
 app.use(express.static(path.join(__dirname, 'public')));
-
 app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
-// Start server
 app.listen(PORT, () => {
-  console.log(`Server is running on http://localhost:${PORT}`);
+  console.log(`Server running on http://localhost:${PORT}`);
 });
