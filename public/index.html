@@ -13,6 +13,8 @@
     @media (max-width: 768px) {
       nav.w-64 { position:fixed;top:0;left:-16rem;height:100vh;width:16rem;z-index:50;background-color:#eef2ff;border-right:1px solid #c7d2fe;transition:left 0.3s ease-in-out; }
       nav.w-64.open { left:0; }
+      #student-sidebar { position:fixed;top:0;left:-16rem;height:100vh;width:16rem;z-index:50;background-color:#eef2ff;border-right:1px solid #c7d2fe;transition:left 0.3s ease-in-out;display:block !important; }
+      #student-sidebar.open { left:0; }
       main.flex-1 { padding-left:1rem !important; }
       #sidebar-toggle-btn { display:inline-flex; }
     }
@@ -930,8 +932,7 @@ function showStudentSection(sectionId) {
   [studentDashboardSection2, studentProfileSection, studentAttendanceSection, studentExamScheduleSection, studentResultsSection]
     .forEach(s => s.id === sectionId ? s.classList.remove('hidden') : s.classList.add('hidden'));
   sectionId === 'student-dashboard-section' ? studentBackBtn.classList.add('hidden') : studentBackBtn.classList.remove('hidden');
-  if (window.innerWidth <= 768) studentSidebar.classList.remove('open');
-}
+  if (window.innerWidth <= 768) studentSidebar.classList.remove('open');}
 
 // =====================================================================
 // POPULATE DROPDOWNS
@@ -1848,7 +1849,7 @@ studentBackBtn.addEventListener('click', () => {
   showStudentSection('student-dashboard-section');
   studentNavButtons.forEach(b => b.getAttribute('data-section')==='dashboard' ? b.classList.add('bg-indigo-100') : b.classList.remove('bg-indigo-100'));
 });
-studentSidebarToggleBtn.addEventListener('click', () => studentSidebar.classList.toggle('hidden'));
+studentSidebarToggleBtn.addEventListener('click', () => studentSidebar.classList.toggle('open'));
 studentLogoutBtn.addEventListener('click', () => {
   clearLoggedInUser(); currentUser=null;
   studentDashboard.classList.add('hidden');
