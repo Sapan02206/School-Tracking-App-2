@@ -8,20 +8,8 @@
   ],
   "routes": [
     {
-      "src": "/send-attendance-email",
-      "dest": "server.js"
-    },
-    {
-      "src": "/send-exam-schedule-email",
-      "dest": "server.js"
-    },
-    {
-      "src": "/send-result-upload-email",
-      "dest": "server.js"
-    },
-    {
-      "src": "/send-new-student-email",
-      "dest": "server.js"
+      "src": "/public/(.*)",
+      "dest": "/public/$1"
     },
     {
       "src": "/(.*)",
