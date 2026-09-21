@@ -26,606 +26,368 @@
     .toast-error   { background:#dc2626; }
     .toast-warning { background:#d97706; }
     .toast-info    { background:#0891b2; }
-    .toast-icon { font-size:1.1rem;margin-top:1px;flex-shrink:0; }
-    .toast-close { margin-left:auto;background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;font-size:1rem;padding:0;line-height:1;flex-shrink:0; }
-    .toast-close:hover { color:#fff; }
+    .toast-close { margin-left:auto;background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;font-size:1rem;padding:0;line-height:1; }
     @keyframes toastIn { from{opacity:0;transform:translateX(60px)}to{opacity:1;transform:translateX(0)} }
     @keyframes toastOut { from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(60px)} }
+    .spinner { display:inline-block;width:1.2rem;height:1.2rem;border:2px solid #fff;border-top-color:transparent;border-radius:50%;animation:spin 0.6s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
   </style>
 </head>
 <body class="bg-gray-100 min-h-screen flex flex-col">
 <div id="toast-container"></div>
+
+<!-- LOADING OVERLAY -->
+<div id="loading-overlay" class="fixed inset-0 bg-white flex items-center justify-center z-50">
+  <div class="text-center">
+    <div class="spinner" style="width:2.5rem;height:2.5rem;border-color:#4f46e5;border-top-color:transparent;"></div>
+    <p class="mt-3 text-indigo-700 font-semibold">Loading...</p>
+  </div>
+</div>
+
 <div id="app" class="flex-1 flex flex-col">
 
-  <!-- ===== LOGIN SCREEN ===== -->
-  <div id="login-screen" class="flex flex-col items-center justify-center min-h-screen bg-white px-4">
+  <!-- ===== LOGIN ===== -->
+  <div id="login-screen" class="hidden flex-col items-center justify-center min-h-screen bg-white px-4">
     <div class="w-full max-w-md bg-white rounded-lg shadow-lg p-8">
       <h1 class="text-3xl font-semibold mb-6 text-center text-indigo-700">School Tracking</h1>
       <form id="login-form" class="space-y-6" autocomplete="off">
         <div>
-          <label for="role" class="block text-sm font-medium text-gray-700 mb-1">Login as</label>
-          <select id="role" name="role" required class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+          <label class="block text-sm font-medium text-gray-700 mb-1">Login as</label>
+          <select id="role" required class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
             <option value="" disabled selected>Select role</option>
             <option value="admin">Admin</option>
             <option value="student">Student</option>
           </select>
         </div>
         <div>
-          <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
-          <input type="text" id="username" name="username" required class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" autocomplete="username" />
+          <label class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+          <input type="text" id="username" required class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" autocomplete="username" />
         </div>
         <div>
-          <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-          <input type="password" id="password" name="password" required class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" autocomplete="current-password" />
+          <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+          <input type="password" id="password" required class="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" autocomplete="current-password" />
         </div>
-        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-md transition">Login</button>
+        <button type="submit" id="login-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-md transition">Login</button>
       </form>
     </div>
   </div>
 
   <!-- ===== ADMIN DASHBOARD ===== -->
   <div id="admin-dashboard" class="hidden flex flex-col min-h-screen">
-    <header class="bg-indigo-700 text-white flex items-center justify-between px-6 py-4 shadow-md relative">
+    <header class="bg-indigo-700 text-white flex items-center justify-between px-6 py-4 shadow-md">
       <div class="flex items-center space-x-4">
-        <button id="sidebar-toggle-btn" class="md:hidden text-white text-2xl focus:outline-none" aria-label="Toggle sidebar"><i class="fas fa-bars"></i></button>
-        <h2 class="text-xl font-semibold">School Tracking - Admin Dashboard</h2>
+        <button id="sidebar-toggle-btn" class="md:hidden text-white text-2xl focus:outline-none"><i class="fas fa-bars"></i></button>
+        <h2 class="text-xl font-semibold">School Tracking - Admin</h2>
       </div>
       <div class="flex items-center space-x-4">
         <button id="admin-profile-btn" class="flex items-center space-x-2 hover:underline focus:outline-none">
-          <i class="fas fa-user-circle text-2xl"></i>
-          <span id="admin-username" class="font-medium"></span>
+          <i class="fas fa-user-circle text-2xl"></i><span id="admin-username-display" class="font-medium"></span>
         </button>
-        <button id="admin-logout-btn" title="Logout" class="hover:text-indigo-300 focus:outline-none"><i class="fas fa-sign-out-alt text-xl"></i></button>
+        <button id="admin-logout-btn" title="Logout" class="hover:text-indigo-300"><i class="fas fa-sign-out-alt text-xl"></i></button>
       </div>
     </header>
-    <div class="flex flex-1 overflow-hidden relative">
-      <nav class="w-64 bg-indigo-50 border-r border-indigo-200 overflow-y-auto" aria-label="Admin sidebar navigation">
+    <div class="flex flex-1 overflow-hidden">
+      <nav class="w-64 bg-indigo-50 border-r border-indigo-200 overflow-y-auto">
         <ul class="py-6 space-y-1">
-          <li><button data-section="dashboard" class="w-full text-left px-6 py-3 flex items-center space-x-3 text-indigo-700 font-semibold hover:bg-indigo-100 focus:outline-none rounded-md"><i class="fas fa-tachometer-alt fa-lg"></i><span>Dashboard</span></button></li>
-          <li><button data-section="profile" class="w-full text-left px-6 py-3 flex items-center space-x-3 text-indigo-700 font-semibold hover:bg-indigo-100 focus:outline-none rounded-md"><i class="fas fa-user fa-lg"></i><span>Profile</span></button></li>
+          <li><button data-section="dashboard" class="w-full text-left px-6 py-3 flex items-center space-x-3 text-indigo-700 font-semibold hover:bg-indigo-100 rounded-md"><i class="fas fa-tachometer-alt fa-lg"></i><span>Dashboard</span></button></li>
+          <li><button data-section="profile" class="w-full text-left px-6 py-3 flex items-center space-x-3 text-indigo-700 font-semibold hover:bg-indigo-100 rounded-md"><i class="fas fa-user fa-lg"></i><span>Profile</span></button></li>
         </ul>
       </nav>
       <main class="flex-1 overflow-y-auto p-6 bg-white relative">
-        <button id="admin-back-btn" class="hidden absolute top-4 right-4 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md font-semibold focus:outline-none focus:ring-2 focus:ring-indigo-400 flex items-center space-x-2 z-50">
+        <button id="admin-back-btn" class="hidden absolute top-4 right-4 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md font-semibold flex items-center space-x-2 z-50">
           <i class="fas fa-arrow-left"></i><span>Back</span>
         </button>
 
-        <!-- === ADMIN DASHBOARD SECTION === -->
+        <!-- DASHBOARD HOME -->
         <section id="admin-dashboard-section" class="space-y-6">
-          <h3 class="text-2xl font-semibold text-indigo-700 mb-4">Dashboard</h3>
+          <h3 class="text-2xl font-semibold text-indigo-700">Dashboard</h3>
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            <button id="open-attendance-management" class="flex flex-col items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-6 shadow-md transition focus:outline-none focus:ring-4 focus:ring-indigo-400">
-              <i class="fas fa-calendar-check fa-3x mb-3"></i><span class="text-lg font-semibold">Attendance Management</span>
-            </button>
-            <button id="open-exam-schedule" class="flex flex-col items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-6 shadow-md transition focus:outline-none focus:ring-4 focus:ring-indigo-400">
-              <i class="fas fa-calendar-alt fa-3x mb-3"></i><span class="text-lg font-semibold">Exam Schedule</span>
-            </button>
-            <button id="open-result-management" class="flex flex-col items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-6 shadow-md transition focus:outline-none focus:ring-4 focus:ring-indigo-400">
-              <i class="fas fa-file-alt fa-3x mb-3"></i><span class="text-lg font-semibold">Result Management</span>
-            </button>
-            <button id="open-batches-management" class="flex flex-col items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-6 shadow-md transition focus:outline-none focus:ring-4 focus:ring-indigo-400">
-              <i class="fas fa-layer-group fa-3x mb-3"></i><span class="text-lg font-semibold">Batches</span>
-            </button>
-            <button id="open-add-student" class="flex flex-col items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-6 shadow-md transition focus:outline-none focus:ring-4 focus:ring-indigo-400">
-              <i class="fas fa-user-plus fa-3x mb-3"></i><span class="text-lg font-semibold">Add Students</span>
-            </button>
-            <button id="open-student-list" class="flex flex-col items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-6 shadow-md transition focus:outline-none focus:ring-4 focus:ring-indigo-400">
-              <i class="fas fa-users fa-3x mb-3"></i><span class="text-lg font-semibold">List of Students</span>
-            </button>
-            <button id="open-fees-management" class="flex flex-col items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-6 shadow-md transition focus:outline-none focus:ring-4 focus:ring-indigo-400">
-              <i class="fas fa-rupee-sign fa-3x mb-3"></i><span class="text-lg font-semibold">Fees</span>
-            </button>
+            <button id="open-attendance-management" class="flex flex-col items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-6 shadow-md transition"><i class="fas fa-calendar-check fa-3x mb-3"></i><span class="text-lg font-semibold">Attendance</span></button>
+            <button id="open-exam-schedule" class="flex flex-col items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-6 shadow-md transition"><i class="fas fa-calendar-alt fa-3x mb-3"></i><span class="text-lg font-semibold">Exam Schedule</span></button>
+            <button id="open-result-management" class="flex flex-col items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-6 shadow-md transition"><i class="fas fa-file-alt fa-3x mb-3"></i><span class="text-lg font-semibold">Result Management</span></button>
+            <button id="open-batches-management" class="flex flex-col items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-6 shadow-md transition"><i class="fas fa-layer-group fa-3x mb-3"></i><span class="text-lg font-semibold">Batches</span></button>
+            <button id="open-add-student" class="flex flex-col items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-6 shadow-md transition"><i class="fas fa-user-plus fa-3x mb-3"></i><span class="text-lg font-semibold">Add Students</span></button>
+            <button id="open-student-list" class="flex flex-col items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-6 shadow-md transition"><i class="fas fa-users fa-3x mb-3"></i><span class="text-lg font-semibold">List of Students</span></button>
+            <button id="open-fees-management" class="flex flex-col items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-6 shadow-md transition"><i class="fas fa-rupee-sign fa-3x mb-3"></i><span class="text-lg font-semibold">Fees</span></button>
           </div>
         </section>
 
-        <!-- === ADMIN PROFILE SECTION === -->
+        <!-- PROFILE -->
         <section id="admin-profile-section" class="hidden max-w-3xl mx-auto bg-indigo-50 p-6 rounded-md shadow-md space-y-6">
-          <h3 class="text-2xl font-semibold text-indigo-700 flex justify-between items-center">
-            Admin Profile
-            <button id="toggle-credentials-btn" aria-expanded="true" aria-controls="student-login-credentials-container" class="text-indigo-700 hover:text-indigo-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 rounded p-1" title="Toggle Student Login Credentials">
-              <i id="toggle-credentials-icon" class="fas fa-chevron-up"></i>
-            </button>
-          </h3>
+          <h3 class="text-2xl font-semibold text-indigo-700">Admin Profile</h3>
           <form id="admin-profile-form" class="space-y-4" autocomplete="off">
-            <div><label for="admin-name" class="block font-medium text-indigo-800 mb-1">Name</label><input type="text" id="admin-name" name="admin-name" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" autocomplete="name" /></div>
-            <div><label for="admin-email" class="block font-medium text-indigo-800 mb-1">Email</label><input type="email" id="admin-email" name="admin-email" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" autocomplete="email" /></div>
-            <div><label for="admin-phone" class="block font-medium text-indigo-800 mb-1">Phone</label><input type="tel" id="admin-phone" name="admin-phone" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" autocomplete="tel" /></div>
+            <div><label class="block font-medium text-indigo-800 mb-1">Name</label><input type="text" id="admin-name" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" /></div>
+            <div><label class="block font-medium text-indigo-800 mb-1">Email</label><input type="email" id="admin-email" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" /></div>
+            <div><label class="block font-medium text-indigo-800 mb-1">Phone</label><input type="tel" id="admin-phone" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" /></div>
             <hr class="border-indigo-300" />
-            <div><label for="admin-username-input" class="block font-medium text-indigo-800 mb-1">Username</label><input type="text" id="admin-username-input" name="admin-username" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" autocomplete="username" /></div>
-            <div><label for="admin-password-input" class="block font-medium text-indigo-800 mb-1">New Password</label><input type="password" id="admin-password-input" name="admin-password" placeholder="Leave blank to keep current password" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" autocomplete="new-password" /></div>
-            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition">Update Profile</button>
+            <div><label class="block font-medium text-indigo-800 mb-1">Username</label><input type="text" id="admin-username-input" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" /></div>
+            <div><label class="block font-medium text-indigo-800 mb-1">New Password</label><input type="password" id="admin-password-input" placeholder="Leave blank to keep current" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" /></div>
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md">Update Profile</button>
           </form>
           <hr class="border-indigo-300" />
-          <div id="student-login-credentials-container">
-            <h4 class="text-xl font-semibold text-indigo-700 mb-4">Manage Student Login Credentials</h4>
-            <div class="overflow-x-auto border border-indigo-300 rounded-md shadow-md bg-white">
-              <table class="min-w-full" role="table">
-                <thead class="bg-indigo-600 text-white sticky top-0">
-                  <tr>
-                    <th class="py-2 px-4 text-left">Student Name</th>
-                    <th class="py-2 px-4 text-left">Batch</th>
-                    <th class="py-2 px-4 text-left">Std</th>
-                    <th class="py-2 px-4 text-left">Div</th>
-                    <th class="py-2 px-4 text-left">Roll No</th>
-                    <th class="py-2 px-4 text-left">Username</th>
-                    <th class="py-2 px-4 text-left">Password</th>
-                    <th class="py-2 px-4 text-center">Actions</th>
-                  </tr>
-                </thead>
-                <tbody id="student-login-credentials-list" class="divide-y divide-indigo-200"></tbody>
-              </table>
-            </div>
+          <h4 class="text-xl font-semibold text-indigo-700">Student Login Credentials</h4>
+          <div class="overflow-x-auto border border-indigo-300 rounded-md bg-white">
+            <table class="min-w-full">
+              <thead class="bg-indigo-600 text-white"><tr><th class="py-2 px-3 text-left">Name</th><th class="py-2 px-3 text-left">Batch</th><th class="py-2 px-3 text-left">Std</th><th class="py-2 px-3 text-left">Div</th><th class="py-2 px-3 text-left">Roll</th><th class="py-2 px-3 text-left">Username</th><th class="py-2 px-3 text-left">Password</th><th class="py-2 px-3 text-center">Save</th></tr></thead>
+              <tbody id="student-login-credentials-list" class="divide-y divide-indigo-200"></tbody>
+            </table>
           </div>
         </section>
 
-        <!-- === ATTENDANCE MANAGEMENT SECTION === -->
+        <!-- ATTENDANCE -->
         <section id="attendance-management-section" class="hidden max-w-5xl mx-auto bg-indigo-50 p-6 rounded-md shadow-md">
           <h3 class="text-2xl font-semibold text-indigo-700 mb-6">Attendance Management</h3>
-          <div class="flex flex-col md:flex-row md:space-x-6 mb-6">
-            <div class="md:w-1/4 mb-4 md:mb-0">
-              <h4 class="font-semibold text-indigo-600 mb-2">Select Batch</h4>
-              <select id="att-filter-batch" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <option value="">All Batches</option>
-              </select>
-            </div>
-            <div class="md:w-1/4 mb-4 md:mb-0">
-              <h4 class="font-semibold text-indigo-600 mb-2">Select Std</h4>
-              <select id="att-filter-std" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <option value="">All Std</option>
-              </select>
-            </div>
-            <div class="md:w-1/4 mb-4 md:mb-0">
-              <h4 class="font-semibold text-indigo-600 mb-2">Select Student</h4>
-              <select id="attendance-student-select" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" aria-label="Select student for attendance">
-                <option value="" disabled selected>Select student</option>
-              </select>
-              <p id="attendance-student-phone" class="mt-2 text-indigo-700 font-semibold text-sm"></p>
-            </div>
-            <div class="md:w-1/4">
-              <h4 class="font-semibold text-indigo-600 mb-2">Mark Attendance</h4>
-              <form id="attendance-form" class="space-y-3" autocomplete="off">
-                <div>
-                  <label for="attendance-date" class="block text-indigo-700 font-medium mb-1">Date</label>
-                  <input type="date" id="attendance-date" required class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div><label class="block font-semibold text-indigo-600 mb-1">Batch</label><select id="att-filter-batch" class="w-full border border-indigo-300 rounded-md px-3 py-2"><option value="">All Batches</option></select></div>
+            <div><label class="block font-semibold text-indigo-600 mb-1">Std</label><select id="att-filter-std" class="w-full border border-indigo-300 rounded-md px-3 py-2"><option value="">All Std</option></select></div>
+            <div><label class="block font-semibold text-indigo-600 mb-1">Student</label><select id="attendance-student-select" class="w-full border border-indigo-300 rounded-md px-3 py-2"><option value="" disabled selected>Select student</option></select><p id="attendance-student-phone" class="mt-1 text-indigo-700 text-sm"></p></div>
+            <div>
+              <label class="block font-semibold text-indigo-600 mb-1">Mark Attendance</label>
+              <form id="attendance-form" class="space-y-2">
+                <input type="date" id="attendance-date" required class="w-full border border-indigo-300 rounded-md px-3 py-2" />
+                <div class="flex space-x-4">
+                  <label class="flex items-center"><input type="radio" name="attendance-status" value="Present" required class="mr-2" />Present</label>
+                  <label class="flex items-center"><input type="radio" name="attendance-status" value="Absent" required class="mr-2" />Absent</label>
                 </div>
-                <div>
-                  <label class="block text-indigo-700 font-medium mb-1">Status</label>
-                  <div class="flex items-center space-x-4">
-                    <label class="inline-flex items-center cursor-pointer"><input type="radio" name="attendance-status" value="Present" required class="form-radio text-indigo-600" /><span class="ml-2">Present</span></label>
-                    <label class="inline-flex items-center cursor-pointer"><input type="radio" name="attendance-status" value="Absent" required class="form-radio text-indigo-600" /><span class="ml-2">Absent</span></label>
-                  </div>
-                </div>
-                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-md font-semibold transition">Upload Attendance</button>
+                <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-md font-semibold">Mark</button>
               </form>
             </div>
           </div>
-          <div class="mt-6">
-            <h4 class="text-indigo-700 font-semibold mb-3">Attendance Records</h4>
-            <div class="mb-4 flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0">
-              <div class="flex-1">
-                <label for="filter-batch" class="block font-semibold text-indigo-700 mb-1">Filter by Batch</label>
-                <select id="filter-batch" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"><option value="">All Batches</option></select>
-              </div>
-              <div class="flex-1">
-                <label for="filter-student" class="block font-semibold text-indigo-700 mb-1">Filter by Student</label>
-                <select id="filter-student" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"><option value="">All Students</option></select>
-              </div>
-              <div class="flex-1">
-                <label for="filter-month" class="block font-semibold text-indigo-700 mb-1">Filter by Month</label>
-                <input type="month" id="filter-month" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-              </div>
-              <div class="flex-1">
-                <label for="filter-date" class="block font-semibold text-indigo-700 mb-1">Filter by Date</label>
-                <input type="date" id="filter-date" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-              </div>
-            </div>
-            <div class="overflow-x-auto max-h-96 overflow-y-auto">
-              <table class="min-w-full bg-white rounded-md shadow-md" role="table">
-                <thead class="bg-indigo-600 text-white sticky top-0">
-                  <tr>
-                    <th class="py-2 px-4 text-left">Student</th>
-                    <th class="py-2 px-4 text-left">Batch</th>
-                    <th class="py-2 px-4 text-left">Std</th>
-                    <th class="py-2 px-4 text-left">Div</th>
-                    <th class="py-2 px-4 text-left">Date</th>
-                    <th class="py-2 px-4 text-left">Day</th>
-                    <th class="py-2 px-4 text-left">Status</th>
-                  </tr>
-                </thead>
-                <tbody id="attendance-records" class="divide-y divide-indigo-200"></tbody>
-              </table>
-            </div>
+          <h4 class="text-indigo-700 font-semibold mb-3">Attendance Records</h4>
+          <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+            <div><label class="block font-semibold text-indigo-700 mb-1">Batch</label><select id="filter-batch" class="w-full border border-indigo-300 rounded-md px-3 py-2"><option value="">All</option></select></div>
+            <div><label class="block font-semibold text-indigo-700 mb-1">Student</label><select id="filter-student" class="w-full border border-indigo-300 rounded-md px-3 py-2"><option value="">All</option></select></div>
+            <div><label class="block font-semibold text-indigo-700 mb-1">Month</label><input type="month" id="filter-month" class="w-full border border-indigo-300 rounded-md px-3 py-2" /></div>
+            <div><label class="block font-semibold text-indigo-700 mb-1">Date</label><input type="date" id="filter-date" class="w-full border border-indigo-300 rounded-md px-3 py-2" /></div>
+          </div>
+          <div class="overflow-x-auto max-h-96 overflow-y-auto">
+            <table class="min-w-full bg-white rounded-md shadow-md">
+              <thead class="bg-indigo-600 text-white sticky top-0"><tr><th class="py-2 px-4 text-left">Student</th><th class="py-2 px-4 text-left">Batch</th><th class="py-2 px-4 text-left">Std</th><th class="py-2 px-4 text-left">Div</th><th class="py-2 px-4 text-left">Date</th><th class="py-2 px-4 text-left">Day</th><th class="py-2 px-4 text-left">Status</th></tr></thead>
+              <tbody id="attendance-records" class="divide-y divide-indigo-200"></tbody>
+            </table>
           </div>
         </section>
 
-        <!-- === EXAM SCHEDULE SECTION === -->
+        <!-- EXAM SCHEDULE -->
         <section id="exam-schedule-section" class="hidden max-w-5xl mx-auto bg-indigo-50 p-6 rounded-md shadow-md">
-          <h3 class="text-2xl font-semibold text-indigo-700 mb-6">Exam Schedule Management</h3>
-          <form id="exam-schedule-form" class="space-y-4 max-w-3xl" autocomplete="off">
-            <div><label for="exam-name" class="block font-medium text-indigo-800 mb-1">Exam Name</label><input type="text" id="exam-name" required class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" /></div>
-            <div><label for="exam-batch" class="block font-medium text-indigo-800 mb-1">Select Batch</label><select id="exam-batch" required class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"><option value="" disabled selected>Select batch</option></select></div>
-            <div><label for="exam-date" class="block font-medium text-indigo-800 mb-1">Date</label><input type="date" id="exam-date" required class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" /></div>
-            <div><label for="exam-time" class="block font-medium text-indigo-800 mb-1">Time (12-hour format)</label><input type="time" id="exam-time" required class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" step="60" /></div>
-            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition">Add Exam</button>
+          <h3 class="text-2xl font-semibold text-indigo-700 mb-6">Exam Schedule</h3>
+          <form id="exam-schedule-form" class="space-y-4 max-w-3xl mb-8">
+            <div><label class="block font-medium text-indigo-800 mb-1">Exam Name</label><input type="text" id="exam-name" required class="w-full border border-indigo-300 rounded-md px-3 py-2" /></div>
+            <div><label class="block font-medium text-indigo-800 mb-1">Batch</label><select id="exam-batch" required class="w-full border border-indigo-300 rounded-md px-3 py-2"><option value="" disabled selected>Select batch</option></select></div>
+            <div><label class="block font-medium text-indigo-800 mb-1">Date</label><input type="date" id="exam-date" required class="w-full border border-indigo-300 rounded-md px-3 py-2" /></div>
+            <div><label class="block font-medium text-indigo-800 mb-1">Time</label><input type="time" id="exam-time" required class="w-full border border-indigo-300 rounded-md px-3 py-2" step="60" /></div>
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md">Add Exam</button>
           </form>
-          <div class="mt-8">
-            <h4 class="text-indigo-700 font-semibold mb-3">Exam Schedule</h4>
-            <div class="overflow-x-auto">
-              <table class="min-w-full bg-white rounded-md shadow-md" role="table">
-                <thead class="bg-indigo-600 text-white"><tr><th class="py-2 px-4 text-left">Exam Name</th><th class="py-2 px-4 text-left">Batch</th><th class="py-2 px-4 text-left">Date</th><th class="py-2 px-4 text-left">Time</th></tr></thead>
-                <tbody id="exam-schedule-list" class="divide-y divide-indigo-200"></tbody>
-              </table>
-            </div>
+          <div class="overflow-x-auto">
+            <table class="min-w-full bg-white rounded-md shadow-md">
+              <thead class="bg-indigo-600 text-white"><tr><th class="py-2 px-4 text-left">Exam</th><th class="py-2 px-4 text-left">Batch</th><th class="py-2 px-4 text-left">Date</th><th class="py-2 px-4 text-left">Time</th></tr></thead>
+              <tbody id="exam-schedule-list" class="divide-y divide-indigo-200"></tbody>
+            </table>
           </div>
         </section>
 
-        <!-- === RESULT MANAGEMENT SECTION === -->
+        <!-- RESULT MANAGEMENT -->
         <section id="result-management-section" class="hidden max-w-5xl mx-auto bg-indigo-50 p-6 rounded-md shadow-md">
           <h3 class="text-2xl font-semibold text-indigo-700 mb-6">Result Management</h3>
           <form id="result-form" class="space-y-4 max-w-3xl" autocomplete="off">
-            <div><label for="result-title" class="block font-medium text-indigo-800 mb-1">Result Title (e.g. Exam Name or Term)</label><input type="text" id="result-title" required class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Enter result title" /></div>
-            <div><label for="result-date" class="block font-medium text-indigo-800 mb-1">Result Date</label><input type="date" id="result-date" required class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" /></div>
-            <!-- Filter by Batch then Std then Student -->
+            <div><label class="block font-medium text-indigo-800 mb-1">Result Title</label><input type="text" id="result-title" required class="w-full border border-indigo-300 rounded-md px-3 py-2" /></div>
+            <div><label class="block font-medium text-indigo-800 mb-1">Result Date</label><input type="date" id="result-date" required class="w-full border border-indigo-300 rounded-md px-3 py-2" /></div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <div>
-                <label for="result-batch-filter" class="block font-semibold text-indigo-600 mb-2">Filter by Batch</label>
-                <select id="result-batch-filter" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                  <option value="">All Batches</option>
-                </select>
-              </div>
-              <div>
-                <label for="result-std-filter" class="block font-semibold text-indigo-600 mb-2">Filter by Std</label>
-                <select id="result-std-filter" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                  <option value="">All Std</option>
-                </select>
-              </div>
-              <div>
-                <label for="result-student-select" class="block font-semibold text-indigo-600 mb-2">Select Student</label>
-                <select id="result-student-select" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" aria-label="Select student for result">
-                  <option value="" disabled selected>Select student</option>
-                </select>
-              </div>
+              <div><label class="block font-semibold text-indigo-600 mb-1">Batch</label><select id="result-batch-filter" class="w-full border border-indigo-300 rounded-md px-3 py-2"><option value="">All Batches</option></select></div>
+              <div><label class="block font-semibold text-indigo-600 mb-1">Std</label><select id="result-std-filter" class="w-full border border-indigo-300 rounded-md px-3 py-2"><option value="">All Std</option></select></div>
+              <div><label class="block font-semibold text-indigo-600 mb-1">Student</label><select id="result-student-select" class="w-full border border-indigo-300 rounded-md px-3 py-2"><option value="" disabled selected>Select student</option></select></div>
             </div>
             <div id="subjects-container" class="space-y-4">
               <div class="subject-row grid grid-cols-12 gap-2 items-center">
-                <div class="col-span-5"><label class="block font-medium text-indigo-800 mb-1">Subject Name</label><input type="text" class="subject-name w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required /></div>
-                <div class="col-span-3"><label class="block font-medium text-indigo-800 mb-1">Marks Obtained</label><input type="number" min="0" class="marks-obtained w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required /></div>
-                <div class="col-span-3"><label class="block font-medium text-indigo-800 mb-1">Total Marks</label><input type="number" min="1" class="total-marks w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required /></div>
-                <div class="col-span-1 flex items-end"><button type="button" class="remove-subject-btn bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md focus:outline-none" title="Remove Subject"><i class="fas fa-trash-alt"></i></button></div>
+                <div class="col-span-5"><label class="block font-medium text-indigo-800 mb-1">Subject</label><input type="text" class="subject-name w-full border border-indigo-300 rounded-md px-3 py-2" required /></div>
+                <div class="col-span-3"><label class="block font-medium text-indigo-800 mb-1">Marks</label><input type="number" min="0" class="marks-obtained w-full border border-indigo-300 rounded-md px-3 py-2" required /></div>
+                <div class="col-span-3"><label class="block font-medium text-indigo-800 mb-1">Total</label><input type="number" min="1" class="total-marks w-full border border-indigo-300 rounded-md px-3 py-2" required /></div>
+                <div class="col-span-1 flex items-end"><button type="button" class="remove-subject-btn bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md"><i class="fas fa-trash-alt"></i></button></div>
               </div>
             </div>
-            <button type="button" id="add-subject-btn" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md transition">Add More Subjects</button>
-            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-md font-semibold transition">Upload Result</button>
+            <button type="button" id="add-subject-btn" class="bg-indigo-500 hover:bg-indigo-600 text-white font-semibold py-2 px-4 rounded-md">+ Add Subject</button>
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-md font-semibold">Upload Result</button>
           </form>
-          <div class="mt-8 max-w-5xl mx-auto">
-            <h4 class="text-indigo-700 font-semibold mb-3">Results Records</h4>
-            <div id="results-student-cards" class="space-y-6"></div>
-          </div>
+          <div class="mt-8"><h4 class="text-indigo-700 font-semibold mb-3">Results Records</h4><div id="results-student-cards" class="space-y-6"></div></div>
         </section>
 
-        <!-- === BATCHES MANAGEMENT SECTION === -->
+        <!-- BATCHES -->
         <section id="batches-management-section" class="hidden max-w-3xl mx-auto bg-indigo-50 p-6 rounded-md shadow-md">
-          <h3 class="text-2xl font-semibold text-indigo-700 mb-6">Batches Management</h3>
-          <p class="text-indigo-600 text-sm mb-4">Batches represent academic years, e.g. <strong>2025</strong>, <strong>2026</strong>.</p>
-          <form id="batch-form" class="space-y-4" autocomplete="off">
-            <div><label for="batch-name" class="block font-medium text-indigo-800 mb-1">Batch Year (e.g. 2025)</label><input type="text" id="batch-name" required placeholder="e.g. 2025" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" /></div>
-            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition">Add Batch</button>
+          <h3 class="text-2xl font-semibold text-indigo-700 mb-2">Batches</h3>
+          <p class="text-indigo-600 text-sm mb-6">Batches represent academic years e.g. <strong>2025</strong>, <strong>2026</strong></p>
+          <form id="batch-form" class="space-y-4 mb-8">
+            <div><label class="block font-medium text-indigo-800 mb-1">Batch Year</label><input type="text" id="batch-name" required placeholder="e.g. 2025" class="w-full border border-indigo-300 rounded-md px-3 py-2" /></div>
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md">Add Batch</button>
           </form>
-          <div class="mt-8">
-            <h4 class="text-indigo-700 font-semibold mb-3">Batches List</h4>
-            <ul id="batches-list" class="list-none space-y-2"></ul>
-          </div>
+          <ul id="batches-list" class="space-y-2"></ul>
         </section>
 
-        <!-- === ADD STUDENT SECTION === -->
+        <!-- ADD STUDENT -->
         <section id="add-student-section" class="hidden max-w-4xl mx-auto bg-indigo-50 p-6 rounded-md shadow-md">
           <h3 class="text-2xl font-semibold text-indigo-700 mb-6">Add Students</h3>
           <form id="add-student-form" class="space-y-4" autocomplete="off">
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label for="student-name" class="block font-medium text-indigo-800 mb-1">First Name <span class="text-red-600">*</span></label>
-                <div class="flex items-center space-x-2">
-                  <input type="text" id="student-name" required class="flex-grow border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-                  <button type="button" id="clear-student-name" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md" title="Clear Name"><i class="fas fa-times"></i></button>
-                </div>
-              </div>
-              <div>
-                <label for="student-surname" class="block font-medium text-indigo-800 mb-1">Surname <span class="text-red-600">*</span></label>
-                <input type="text" id="student-surname" required class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" />
-              </div>
-              <div>
-                <label for="student-batch" class="block font-medium text-indigo-800 mb-1">Select Batch <span class="text-red-600">*</span></label>
-                <select id="student-batch" required class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                  <option value="" disabled selected>Select batch</option>
-                </select>
-              </div>
-              <div>
-                <label for="student-std" class="block font-medium text-indigo-800 mb-1">Select Std <span class="text-red-600">*</span></label>
-                <select id="student-std" required class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <div><label class="block font-medium text-indigo-800 mb-1">First Name <span class="text-red-600">*</span></label><div class="flex space-x-2"><input type="text" id="student-name" required class="flex-grow border border-indigo-300 rounded-md px-3 py-2" /><button type="button" id="clear-student-name" class="bg-red-600 text-white px-3 py-1 rounded-md"><i class="fas fa-times"></i></button></div></div>
+              <div><label class="block font-medium text-indigo-800 mb-1">Surname <span class="text-red-600">*</span></label><input type="text" id="student-surname" required class="w-full border border-indigo-300 rounded-md px-3 py-2" /></div>
+              <div><label class="block font-medium text-indigo-800 mb-1">Select Batch <span class="text-red-600">*</span></label><select id="student-batch" required class="w-full border border-indigo-300 rounded-md px-3 py-2"><option value="" disabled selected>Select batch</option></select></div>
+              <div><label class="block font-medium text-indigo-800 mb-1">Select Std <span class="text-red-600">*</span></label>
+                <select id="student-std" required class="w-full border border-indigo-300 rounded-md px-3 py-2">
                   <option value="" disabled selected>Select std</option>
-                  <option value="1">Std 1</option>
-                  <option value="2">Std 2</option>
-                  <option value="3">Std 3</option>
-                  <option value="4">Std 4</option>
-                  <option value="5">Std 5</option>
-                  <option value="6">Std 6</option>
-                  <option value="7">Std 7</option>
-                  <option value="8">Std 8</option>
-                  <option value="9">Std 9</option>
-                  <option value="10">Std 10</option>
-                  <option value="11">Std 11</option>
-                  <option value="12">Std 12</option>
+                  <option value="1">Std 1</option><option value="2">Std 2</option><option value="3">Std 3</option><option value="4">Std 4</option><option value="5">Std 5</option><option value="6">Std 6</option><option value="7">Std 7</option><option value="8">Std 8</option><option value="9">Std 9</option><option value="10">Std 10</option><option value="11">Std 11</option><option value="12">Std 12</option>
                 </select>
               </div>
-              <div>
-                <label for="student-division" class="block font-medium text-indigo-800 mb-1">Division <span class="text-red-600">*</span></label>
-                <select id="student-division" required class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <div><label class="block font-medium text-indigo-800 mb-1">Division <span class="text-red-600">*</span></label>
+                <select id="student-division" required class="w-full border border-indigo-300 rounded-md px-3 py-2">
                   <option value="" disabled selected>Select division</option>
-                  <option value="A">A</option>
-                  <option value="B">B</option>
-                  <option value="C">C</option>
-                  <option value="D">D</option>
-                  <option value="E">E</option>
+                  <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option>
                 </select>
               </div>
-              <div>
-                <label class="block font-medium text-indigo-800 mb-1">Roll No <span class="text-gray-400 font-normal">(Auto-generated)</span></label>
-                <input type="text" id="student-rollno-display" readonly class="w-full border border-gray-200 bg-gray-100 rounded-md px-3 py-2 text-gray-500 cursor-not-allowed" placeholder="Auto-generated on save" />
-              </div>
-              <div>
-                <label for="student-email" class="block font-medium text-indigo-800 mb-1">Email (Optional)</label>
-                <input type="email" id="student-email" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" autocomplete="email" />
-              </div>
-              <div>
-                <label for="student-phone" class="block font-medium text-indigo-800 mb-1">Phone <span class="text-red-600">*</span></label>
-                <input type="tel" id="student-phone" required class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" autocomplete="tel" />
-              </div>
-              <div>
-                <label for="student-username" class="block font-medium text-indigo-800 mb-1">Username <span class="text-red-600">*</span></label>
-                <input type="text" id="student-username" required class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" autocomplete="username" />
-              </div>
-              <div>
-                <label for="student-password" class="block font-medium text-indigo-800 mb-1">Password <span class="text-red-600">*</span></label>
-                <input type="password" id="student-password" required class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" autocomplete="new-password" />
-              </div>
+              <div><label class="block font-medium text-indigo-800 mb-1">Roll No <span class="text-gray-400 font-normal">(Auto)</span></label><input type="text" id="student-rollno-display" readonly class="w-full border border-gray-200 bg-gray-100 rounded-md px-3 py-2 text-gray-500" placeholder="Auto-generated" /></div>
+              <div><label class="block font-medium text-indigo-800 mb-1">Email</label><input type="email" id="student-email" class="w-full border border-indigo-300 rounded-md px-3 py-2" /></div>
+              <div><label class="block font-medium text-indigo-800 mb-1">Phone <span class="text-red-600">*</span></label><input type="tel" id="student-phone" required class="w-full border border-indigo-300 rounded-md px-3 py-2" /></div>
+              <div><label class="block font-medium text-indigo-800 mb-1">Username <span class="text-red-600">*</span></label><input type="text" id="student-username" required class="w-full border border-indigo-300 rounded-md px-3 py-2" /></div>
+              <div><label class="block font-medium text-indigo-800 mb-1">Password <span class="text-red-600">*</span></label><input type="password" id="student-password" required class="w-full border border-indigo-300 rounded-md px-3 py-2" /></div>
             </div>
-            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition">Add Student</button>
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md">Add Student</button>
           </form>
           <div class="mt-10">
             <h4 class="text-indigo-700 font-semibold mb-4">Students List</h4>
-            <div class="overflow-x-auto max-h-96 overflow-y-auto border border-indigo-300 rounded-md shadow-md bg-white">
-              <table class="min-w-full" role="table">
-                <thead class="bg-indigo-600 text-white sticky top-0">
-                  <tr>
-                    <th class="py-2 px-3 text-left">Roll No</th>
-                    <th class="py-2 px-3 text-left">Name</th>
-                    <th class="py-2 px-3 text-left">Surname</th>
-                    <th class="py-2 px-3 text-left">Batch</th>
-                    <th class="py-2 px-3 text-left">Std</th>
-                    <th class="py-2 px-3 text-left">Div</th>
-                    <th class="py-2 px-3 text-left">Phone</th>
-                    <th class="py-2 px-3 text-left">Username</th>
-                    <th class="py-2 px-3 text-center">Actions</th>
-                  </tr>
-                </thead>
+            <div class="overflow-x-auto max-h-96 overflow-y-auto border border-indigo-300 rounded-md bg-white">
+              <table class="min-w-full">
+                <thead class="bg-indigo-600 text-white sticky top-0"><tr><th class="py-2 px-3 text-left">Roll</th><th class="py-2 px-3 text-left">Name</th><th class="py-2 px-3 text-left">Surname</th><th class="py-2 px-3 text-left">Batch</th><th class="py-2 px-3 text-left">Std</th><th class="py-2 px-3 text-left">Div</th><th class="py-2 px-3 text-left">Phone</th><th class="py-2 px-3 text-left">Username</th><th class="py-2 px-3 text-center">Actions</th></tr></thead>
                 <tbody id="students-list" class="divide-y divide-indigo-200"></tbody>
               </table>
             </div>
           </div>
         </section>
 
-        <!-- === LIST OF STUDENTS MODULE === -->
+        <!-- LIST OF STUDENTS -->
         <section id="student-list-section" class="hidden max-w-6xl mx-auto bg-indigo-50 p-6 rounded-md shadow-md">
           <h3 class="text-2xl font-semibold text-indigo-700 mb-6">List of Students</h3>
-          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div>
-              <label for="sl-filter-batch" class="block font-semibold text-indigo-700 mb-1">Select Batch</label>
-              <select id="sl-filter-batch" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"><option value="">All Batches</option></select>
-            </div>
-            <div>
-              <label for="sl-filter-std" class="block font-semibold text-indigo-700 mb-1">Select Std</label>
-              <select id="sl-filter-std" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"><option value="">All Std</option></select>
-            </div>
-            <div>
-              <label for="sl-filter-div" class="block font-semibold text-indigo-700 mb-1">Select Division</label>
-              <select id="sl-filter-div" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                <option value="">All Divisions</option>
-                <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option>
-              </select>
-            </div>
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+            <div><label class="block font-semibold text-indigo-700 mb-1">Batch</label><select id="sl-filter-batch" class="w-full border border-indigo-300 rounded-md px-3 py-2"><option value="">All Batches</option></select></div>
+            <div><label class="block font-semibold text-indigo-700 mb-1">Std</label><select id="sl-filter-std" class="w-full border border-indigo-300 rounded-md px-3 py-2"><option value="">All Std</option></select></div>
+            <div><label class="block font-semibold text-indigo-700 mb-1">Division</label><select id="sl-filter-div" class="w-full border border-indigo-300 rounded-md px-3 py-2"><option value="">All</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option></select></div>
           </div>
           <div class="flex justify-between items-center mb-4">
             <span id="sl-count" class="text-indigo-700 font-medium"></span>
-            <button id="sl-export-btn" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md flex items-center space-x-2 focus:outline-none">
-              <i class="fas fa-file-excel"></i><span>Export as Excel</span>
-            </button>
+            <button id="sl-export-btn" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md flex items-center space-x-2"><i class="fas fa-file-excel"></i><span>Export Excel</span></button>
           </div>
-          <div class="overflow-x-auto border border-indigo-300 rounded-md shadow-md bg-white">
-            <table class="min-w-full" role="table" id="sl-table">
-              <thead class="bg-indigo-600 text-white sticky top-0">
-                <tr>
-                  <th class="py-2 px-4 text-left">Roll No</th>
-                  <th class="py-2 px-4 text-left">Name</th>
-                  <th class="py-2 px-4 text-left">Surname</th>
-                  <th class="py-2 px-4 text-left">Std</th>
-                  <th class="py-2 px-4 text-left">Division</th>
-                  <th class="py-2 px-4 text-left">Batch</th>
-                  <th class="py-2 px-4 text-left">Phone</th>
-                  <th class="py-2 px-4 text-left">Email</th>
-                </tr>
-              </thead>
+          <div class="overflow-x-auto border border-indigo-300 rounded-md bg-white">
+            <table class="min-w-full">
+              <thead class="bg-indigo-600 text-white"><tr><th class="py-2 px-4 text-left">Roll</th><th class="py-2 px-4 text-left">Name</th><th class="py-2 px-4 text-left">Surname</th><th class="py-2 px-4 text-left">Std</th><th class="py-2 px-4 text-left">Division</th><th class="py-2 px-4 text-left">Batch</th><th class="py-2 px-4 text-left">Phone</th><th class="py-2 px-4 text-left">Email</th></tr></thead>
               <tbody id="sl-list-body" class="divide-y divide-indigo-200"></tbody>
             </table>
           </div>
         </section>
 
-        <!-- === FEES MODULE === -->
+        <!-- FEES -->
         <section id="fees-section" class="hidden max-w-6xl mx-auto bg-indigo-50 p-6 rounded-md shadow-md">
           <h3 class="text-2xl font-semibold text-indigo-700 mb-6">Fees Management</h3>
-          <!-- Add / Update Fee Record -->
           <div class="bg-white border border-indigo-200 rounded-md p-4 mb-6 shadow-sm">
             <h4 class="text-indigo-700 font-semibold mb-4">Update Fee Status</h4>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
-              <div>
-                <label for="fee-batch-filter" class="block font-semibold text-indigo-700 mb-1">Select Batch</label>
-                <select id="fee-batch-filter" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"><option value="">All Batches</option></select>
-              </div>
-              <div>
-                <label for="fee-std-filter" class="block font-semibold text-indigo-700 mb-1">Select Std</label>
-                <select id="fee-std-filter" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"><option value="">All Std</option></select>
-              </div>
-              <div>
-                <label for="fee-div-filter" class="block font-semibold text-indigo-700 mb-1">Select Division</label>
-                <select id="fee-div-filter" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                  <option value="">All Divisions</option>
-                  <option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option>
-                </select>
-              </div>
+              <div><label class="block font-semibold text-indigo-700 mb-1">Batch</label><select id="fee-batch-filter" class="w-full border border-indigo-300 rounded-md px-3 py-2"><option value="">All Batches</option></select></div>
+              <div><label class="block font-semibold text-indigo-700 mb-1">Std</label><select id="fee-std-filter" class="w-full border border-indigo-300 rounded-md px-3 py-2"><option value="">All Std</option></select></div>
+              <div><label class="block font-semibold text-indigo-700 mb-1">Division</label><select id="fee-div-filter" class="w-full border border-indigo-300 rounded-md px-3 py-2"><option value="">All</option><option value="A">A</option><option value="B">B</option><option value="C">C</option><option value="D">D</option><option value="E">E</option></select></div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
-              <div>
-                <label for="fee-status-filter" class="block font-semibold text-indigo-700 mb-1">Fee Status</label>
-                <select id="fee-status-filter" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                  <option value="">All</option>
-                  <option value="Paid">Paid</option>
-                  <option value="Pending">Pending</option>
-                </select>
-              </div>
-              <div>
-                <label for="fee-student-select" class="block font-semibold text-indigo-700 mb-1">Select Student (to update)</label>
-                <select id="fee-student-select" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"><option value="" disabled selected>Select student</option></select>
-              </div>
+              <div><label class="block font-semibold text-indigo-700 mb-1">Status Filter</label><select id="fee-status-filter" class="w-full border border-indigo-300 rounded-md px-3 py-2"><option value="">All</option><option value="Paid">Paid</option><option value="Pending">Pending</option></select></div>
+              <div><label class="block font-semibold text-indigo-700 mb-1">Select Student</label><select id="fee-student-select" class="w-full border border-indigo-300 rounded-md px-3 py-2"><option value="" disabled selected>Select student</option></select></div>
             </div>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-              <div>
-                <label for="fee-amount" class="block font-semibold text-indigo-700 mb-1">Fee Amount (₹)</label>
-                <input type="number" id="fee-amount" min="0" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="0" />
-              </div>
-              <div>
-                <label for="fee-status-set" class="block font-semibold text-indigo-700 mb-1">Set Status</label>
-                <select id="fee-status-set" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                  <option value="Pending">Pending</option>
-                  <option value="Paid">Paid</option>
-                </select>
-              </div>
-              <div>
-                <button id="fee-save-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md">Save Fee Record</button>
-              </div>
+              <div><label class="block font-semibold text-indigo-700 mb-1">Amount (₹)</label><input type="number" id="fee-amount" min="0" class="w-full border border-indigo-300 rounded-md px-3 py-2" placeholder="0" /></div>
+              <div><label class="block font-semibold text-indigo-700 mb-1">Status</label><select id="fee-status-set" class="w-full border border-indigo-300 rounded-md px-3 py-2"><option value="Pending">Pending</option><option value="Paid">Paid</option></select></div>
+              <div><button id="fee-save-btn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md">Save</button></div>
             </div>
           </div>
-          <!-- Fee Records Table -->
           <div class="flex justify-between items-center mb-4">
             <span id="fees-count" class="text-indigo-700 font-medium"></span>
-            <button id="fees-export-btn" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md flex items-center space-x-2 focus:outline-none">
-              <i class="fas fa-file-excel"></i><span>Export as Excel</span>
-            </button>
+            <button id="fees-export-btn" class="bg-green-600 hover:bg-green-700 text-white font-semibold py-2 px-4 rounded-md flex items-center space-x-2"><i class="fas fa-file-excel"></i><span>Export Excel</span></button>
           </div>
-          <div class="overflow-x-auto border border-indigo-300 rounded-md shadow-md bg-white">
-            <table class="min-w-full" role="table" id="fees-table">
-              <thead class="bg-indigo-600 text-white sticky top-0">
-                <tr>
-                  <th class="py-2 px-4 text-left">Roll No</th>
-                  <th class="py-2 px-4 text-left">Name</th>
-                  <th class="py-2 px-4 text-left">Surname</th>
-                  <th class="py-2 px-4 text-left">Std</th>
-                  <th class="py-2 px-4 text-left">Division</th>
-                  <th class="py-2 px-4 text-left">Batch</th>
-                  <th class="py-2 px-4 text-left">Fee Amount (₹)</th>
-                  <th class="py-2 px-4 text-left">Status</th>
-                </tr>
-              </thead>
+          <div class="overflow-x-auto border border-indigo-300 rounded-md bg-white">
+            <table class="min-w-full">
+              <thead class="bg-indigo-600 text-white"><tr><th class="py-2 px-4 text-left">Roll</th><th class="py-2 px-4 text-left">Name</th><th class="py-2 px-4 text-left">Surname</th><th class="py-2 px-4 text-left">Std</th><th class="py-2 px-4 text-left">Division</th><th class="py-2 px-4 text-left">Batch</th><th class="py-2 px-4 text-left">Amount (₹)</th><th class="py-2 px-4 text-left">Status</th></tr></thead>
               <tbody id="fees-list-body" class="divide-y divide-indigo-200"></tbody>
             </table>
           </div>
         </section>
-
       </main>
     </div>
   </div>
 
   <!-- ===== STUDENT DASHBOARD ===== -->
   <div id="student-dashboard" class="hidden flex flex-col min-h-screen">
-    <header class="bg-indigo-700 text-white flex items-center justify-between px-6 py-4 shadow-md relative">
+    <header class="bg-indigo-700 text-white flex items-center justify-between px-6 py-4 shadow-md">
       <div class="flex items-center space-x-4">
-        <button id="student-sidebar-toggle-btn" class="md:hidden text-white text-2xl focus:outline-none" aria-label="Toggle sidebar"><i class="fas fa-bars"></i></button>
-        <h2 class="text-xl font-semibold">School Tracking - Student Dashboard</h2>
+        <button id="student-sidebar-toggle-btn" class="md:hidden text-white text-2xl focus:outline-none"><i class="fas fa-bars"></i></button>
+        <h2 class="text-xl font-semibold">School Tracking - Student</h2>
       </div>
       <div class="flex items-center space-x-4">
-        <button id="student-profile-btn" class="flex items-center space-x-2 hover:underline focus:outline-none"><i class="fas fa-user-circle text-2xl"></i><span id="student-username" class="font-medium"></span></button>
-        <button id="student-logout-btn" title="Logout" class="hover:text-indigo-300 focus:outline-none"><i class="fas fa-sign-out-alt text-xl"></i></button>
+        <button id="student-profile-btn" class="flex items-center space-x-2 hover:underline"><i class="fas fa-user-circle text-2xl"></i><span id="student-username-display" class="font-medium"></span></button>
+        <button id="student-logout-btn" title="Logout" class="hover:text-indigo-300"><i class="fas fa-sign-out-alt text-xl"></i></button>
       </div>
     </header>
-    <div class="flex flex-1 overflow-hidden relative">
-      <nav id="student-sidebar" class="w-64 bg-indigo-50 border-r border-indigo-200 overflow-y-auto hidden md:block" aria-label="Student sidebar navigation">
+    <div class="flex flex-1 overflow-hidden">
+      <nav id="student-sidebar" class="w-64 bg-indigo-50 border-r border-indigo-200 overflow-y-auto hidden md:block">
         <ul class="py-6 space-y-1">
-          <li><button data-section="dashboard" class="w-full text-left px-6 py-3 flex items-center space-x-3 text-indigo-700 font-semibold hover:bg-indigo-100 focus:outline-none rounded-md"><i class="fas fa-tachometer-alt fa-lg"></i><span>Dashboard</span></button></li>
-          <li><button data-section="profile" class="w-full text-left px-6 py-3 flex items-center space-x-3 text-indigo-700 font-semibold hover:bg-indigo-100 focus:outline-none rounded-md"><i class="fas fa-user fa-lg"></i><span>Profile</span></button></li>
+          <li><button data-section="dashboard" class="w-full text-left px-6 py-3 flex items-center space-x-3 text-indigo-700 font-semibold hover:bg-indigo-100 rounded-md"><i class="fas fa-tachometer-alt fa-lg"></i><span>Dashboard</span></button></li>
+          <li><button data-section="profile" class="w-full text-left px-6 py-3 flex items-center space-x-3 text-indigo-700 font-semibold hover:bg-indigo-100 rounded-md"><i class="fas fa-user fa-lg"></i><span>Profile</span></button></li>
         </ul>
       </nav>
-      <main class="flex-1 overflow-y-auto p-6 bg-white relative max-w-full">
-        <button id="student-back-btn" class="hidden absolute top-4 right-4 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md font-semibold focus:outline-none flex items-center space-x-2 z-50"><i class="fas fa-arrow-left"></i><span>Back</span></button>
-
-        <!-- Student Dashboard Home -->
+      <main class="flex-1 overflow-y-auto p-6 bg-white relative">
+        <button id="student-back-btn" class="hidden absolute top-4 right-4 bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md font-semibold flex items-center space-x-2 z-50"><i class="fas fa-arrow-left"></i><span>Back</span></button>
         <section id="student-dashboard-section" class="space-y-6">
-          <h3 class="text-2xl font-semibold text-indigo-700 mb-4">Welcome, <span id="student-name-display"></span></h3>
+          <h3 class="text-2xl font-semibold text-indigo-700">Welcome, <span id="student-name-display"></span></h3>
           <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
-            <button id="student-open-attendance" class="flex flex-col items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-6 shadow-md transition focus:outline-none focus:ring-4 focus:ring-indigo-400"><i class="fas fa-calendar-check fa-3x mb-3"></i><span class="text-lg font-semibold">Attendance Records</span></button>
-            <button id="student-open-exam-schedule" class="flex flex-col items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-6 shadow-md transition focus:outline-none focus:ring-4 focus:ring-indigo-400"><i class="fas fa-calendar-alt fa-3x mb-3"></i><span class="text-lg font-semibold">Exam Schedule</span></button>
-            <button id="student-open-results" class="flex flex-col items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-6 shadow-md transition focus:outline-none focus:ring-4 focus:ring-indigo-400"><i class="fas fa-file-alt fa-3x mb-3"></i><span class="text-lg font-semibold">Results</span></button>
+            <button id="student-open-attendance" class="flex flex-col items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-6 shadow-md transition"><i class="fas fa-calendar-check fa-3x mb-3"></i><span class="text-lg font-semibold">Attendance</span></button>
+            <button id="student-open-exam-schedule" class="flex flex-col items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-6 shadow-md transition"><i class="fas fa-calendar-alt fa-3x mb-3"></i><span class="text-lg font-semibold">Exam Schedule</span></button>
+            <button id="student-open-results" class="flex flex-col items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg p-6 shadow-md transition"><i class="fas fa-file-alt fa-3x mb-3"></i><span class="text-lg font-semibold">Results</span></button>
           </div>
         </section>
-
-        <!-- Student Profile Section -->
-        <section id="student-profile-section" class="hidden max-w-3xl mx-auto bg-indigo-50 p-6 rounded-md shadow-md space-y-6">
-          <h3 class="text-2xl font-semibold text-indigo-700">Profile</h3>
-          <form id="student-profile-form" class="space-y-4" autocomplete="off">
-            <div><label for="student-name-input" class="block font-medium text-indigo-800 mb-1">Name</label><input type="text" id="student-name-input" name="student-name" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required /></div>
-            <div><label for="student-email-input" class="block font-medium text-indigo-800 mb-1">Email</label><input type="email" id="student-email-input" name="student-email" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" /></div>
-            <div><label for="student-phone-input" class="block font-medium text-indigo-800 mb-1">Phone</label><input type="tel" id="student-phone-input" name="student-phone" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required /></div>
+        <section id="student-profile-section" class="hidden max-w-3xl mx-auto bg-indigo-50 p-6 rounded-md shadow-md">
+          <h3 class="text-2xl font-semibold text-indigo-700 mb-6">Profile</h3>
+          <form id="student-profile-form" class="space-y-4">
+            <div><label class="block font-medium text-indigo-800 mb-1">Name</label><input type="text" id="sp-name" required class="w-full border border-indigo-300 rounded-md px-3 py-2" /></div>
+            <div><label class="block font-medium text-indigo-800 mb-1">Email</label><input type="email" id="sp-email" class="w-full border border-indigo-300 rounded-md px-3 py-2" /></div>
+            <div><label class="block font-medium text-indigo-800 mb-1">Phone</label><input type="tel" id="sp-phone" required class="w-full border border-indigo-300 rounded-md px-3 py-2" /></div>
             <hr class="border-indigo-300" />
-            <div><label for="student-username-input" class="block font-medium text-indigo-800 mb-1">Username</label><input type="text" id="student-username-input" name="student-username" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required /></div>
-            <div><label for="student-password-input" class="block font-medium text-indigo-800 mb-1">New Password</label><input type="password" id="student-password-input" name="student-password" placeholder="Leave blank to keep current password" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" /></div>
-            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md transition">Update Profile</button>
+            <div><label class="block font-medium text-indigo-800 mb-1">Username</label><input type="text" id="sp-username" required class="w-full border border-indigo-300 rounded-md px-3 py-2" /></div>
+            <div><label class="block font-medium text-indigo-800 mb-1">New Password</label><input type="password" id="sp-password" placeholder="Leave blank to keep current" class="w-full border border-indigo-300 rounded-md px-3 py-2" /></div>
+            <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded-md">Update Profile</button>
           </form>
         </section>
-
-        <!-- Student Attendance Records Section -->
         <section id="student-attendance-section" class="hidden max-w-5xl mx-auto bg-indigo-50 p-6 rounded-md shadow-md">
           <h3 class="text-2xl font-semibold text-indigo-700 mb-6">Attendance Records</h3>
-          <div class="mb-6 flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0">
-            <div class="flex-1"><label for="student-filter-batch" class="block font-semibold text-indigo-700 mb-1">Select Batch</label><select id="student-filter-batch" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"><option value="">All Batches</option></select></div>
-            <div class="flex-1"><label for="student-filter-month" class="block font-semibold text-indigo-700 mb-1">Filter by Month</label><input type="month" id="student-filter-month" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" /></div>
-            <div class="flex-1"><label for="student-filter-date" class="block font-semibold text-indigo-700 mb-1">Filter by Date</label><input type="date" id="student-filter-date" class="w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" /></div>
+          <div class="flex flex-col md:flex-row md:space-x-4 space-y-4 md:space-y-0 mb-6">
+            <div class="flex-1"><label class="block font-semibold text-indigo-700 mb-1">Month</label><input type="month" id="student-filter-month" class="w-full border border-indigo-300 rounded-md px-3 py-2" /></div>
+            <div class="flex-1"><label class="block font-semibold text-indigo-700 mb-1">Date</label><input type="date" id="student-filter-date" class="w-full border border-indigo-300 rounded-md px-3 py-2" /></div>
           </div>
           <div class="overflow-x-auto">
-            <table class="min-w-full bg-indigo-50 rounded-md shadow-md" role="table">
+            <table class="min-w-full bg-white rounded-md shadow-md">
               <thead class="bg-indigo-600 text-white"><tr><th class="py-2 px-4 text-left">Date</th><th class="py-2 px-4 text-left">Day</th><th class="py-2 px-4 text-left">Status</th><th class="py-2 px-4 text-left">Batch</th></tr></thead>
               <tbody id="student-attendance-records" class="divide-y divide-indigo-300"></tbody>
             </table>
           </div>
         </section>
-
-        <!-- Student Exam Schedule Section -->
         <section id="student-exam-schedule-section" class="hidden max-w-5xl mx-auto bg-indigo-50 p-6 rounded-md shadow-md">
           <h3 class="text-2xl font-semibold text-indigo-700 mb-6">Exam Schedule</h3>
           <div class="overflow-x-auto">
-            <table class="min-w-full bg-indigo-50 rounded-md shadow-md" role="table">
-              <thead class="bg-indigo-600 text-white"><tr><th class="py-2 px-4 text-left">Exam Name</th><th class="py-2 px-4 text-left">Date</th><th class="py-2 px-4 text-left">Time</th></tr></thead>
+            <table class="min-w-full bg-white rounded-md shadow-md">
+              <thead class="bg-indigo-600 text-white"><tr><th class="py-2 px-4 text-left">Exam</th><th class="py-2 px-4 text-left">Date</th><th class="py-2 px-4 text-left">Time</th></tr></thead>
               <tbody id="student-exam-schedule" class="divide-y divide-indigo-300"></tbody>
             </table>
           </div>
         </section>
-
-        <!-- Student Results Section -->
-        <section id="student-results-section" class="hidden max-w-5xl mx-auto bg-indigo-50 p-6 rounded-md shadow-md space-y-6">
+        <section id="student-results-section" class="hidden max-w-5xl mx-auto bg-indigo-50 p-6 rounded-md shadow-md">
           <h3 class="text-2xl font-semibold text-indigo-700 mb-6">Results</h3>
-          <div id="student-results-list" class="space-y-6 max-w-4xl mx-auto"></div>
-          <div id="student-results-details" class="mt-6 max-w-4xl mx-auto bg-indigo-50 rounded-md shadow-md p-6 hidden" aria-live="polite">
+          <div id="student-results-list" class="space-y-4"></div>
+          <div id="student-results-details" class="hidden mt-6 bg-white rounded-md shadow-md p-6">
             <button id="close-result-details" class="mb-4 bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md flex items-center space-x-2"><i class="fas fa-times"></i><span>Close</span></button>
             <h5 id="result-details-title" class="text-xl font-semibold text-indigo-700 mb-4"></h5>
             <div class="overflow-x-auto">
-              <table id="result-details-table" class="min-w-full bg-white rounded-md shadow-md" role="table">
-                <thead class="bg-indigo-600 text-white"><tr><th class="py-2 px-4 text-left">Subject</th><th class="py-2 px-4 text-left">Marks Obtained</th><th class="py-2 px-4 text-left">Total Marks</th></tr></thead>
+              <table class="min-w-full bg-indigo-50 rounded-md">
+                <thead class="bg-indigo-600 text-white"><tr><th class="py-2 px-4 text-left">Subject</th><th class="py-2 px-4 text-left">Marks</th><th class="py-2 px-4 text-left">Total</th></tr></thead>
                 <tbody id="result-details-tbody" class="divide-y divide-indigo-300"></tbody>
               </table>
             </div>
@@ -638,1311 +400,966 @@
 
 <script>
 // =====================================================================
-// DATA STORAGE KEYS
+// STATE
 // =====================================================================
-const STORAGE_KEYS = {
-  USERS: 'school_users',
-  BATCHES: 'school_batches',
-  ATTENDANCE: 'school_attendance',
-  EXAMS: 'school_exams',
-  RESULTS: 'school_results',
-  FEES: 'school_fees',
-  LOGGED_IN_USER: 'school_logged_in_user',
-};
+let currentUser = null;
+let allStudents = [];
+let allBatches  = [];
+let allAttendance = [];
+let allExams    = [];
+let allResults  = [];
+let allFees     = [];
 
 // =====================================================================
-// INIT DATA
+// UTILITIES
 // =====================================================================
-function initData() {
-  try {
-    const existingUsers = localStorage.getItem(STORAGE_KEYS.USERS);
-    const parsedUsers = existingUsers ? JSON.parse(existingUsers) : [];
-    if (!existingUsers || parsedUsers.length === 0) {
-      const users = [
-        { id: 'admin-1', username: 'admin', password: 'admin123', role: 'admin', name: 'Admin', email: 'admin@school.com', phone: '1234567890' },
-        { id: 'student-1', username: 'student1', password: 'student123', role: 'student', name: 'John', surname: 'Doe', email: 'john.doe@example.com', phone: '+12345678901', batchId: 'batch-2025', std: '10', division: 'A', rollNo: 1 },
-        { id: 'student-2', username: 'student2', password: 'student123', role: 'student', name: 'Jane', surname: 'Smith', email: 'jane.smith@example.com', phone: '+19876543210', batchId: 'batch-2026', std: '11', division: 'B', rollNo: 1 },
-      ];
-      localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
-    }
-    const existingBatches = localStorage.getItem(STORAGE_KEYS.BATCHES);
-    const parsedBatches = existingBatches ? JSON.parse(existingBatches) : [];
-    if (!existingBatches || parsedBatches.length === 0) {
-      const batches = [
-        { id: 'batch-2025', name: '2025' },
-        { id: 'batch-2026', name: '2026' },
-      ];
-      localStorage.setItem(STORAGE_KEYS.BATCHES, JSON.stringify(batches));
-    }
-    if (!localStorage.getItem(STORAGE_KEYS.ATTENDANCE)) localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify([]));
-    if (!localStorage.getItem(STORAGE_KEYS.EXAMS)) localStorage.setItem(STORAGE_KEYS.EXAMS, JSON.stringify([]));
-    if (!localStorage.getItem(STORAGE_KEYS.RESULTS)) localStorage.setItem(STORAGE_KEYS.RESULTS, JSON.stringify([]));
-    if (!localStorage.getItem(STORAGE_KEYS.FEES)) localStorage.setItem(STORAGE_KEYS.FEES, JSON.stringify([]));
-    return true;
-  } catch (err) {
-    console.error('Storage error:', err);
-    return false;
-  }
+function showToast(msg, type='info', duration=4000) {
+  const icons = {success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'};
+  const c = document.getElementById('toast-container');
+  const t = document.createElement('div');
+  t.className = `toast toast-${type}`;
+  t.innerHTML = `<span>${icons[type]||'ℹ️'}</span><span>${msg}</span><button class="toast-close">✕</button>`;
+  c.appendChild(t);
+  const rm = () => { t.classList.add('hide'); t.addEventListener('animationend',()=>t.remove(),{once:true}); };
+  t.querySelector('.toast-close').addEventListener('click', rm);
+  setTimeout(rm, duration);
 }
-initData();
 
-// =====================================================================
-// GETTERS / SETTERS
-// =====================================================================
-const getUsers      = () => JSON.parse(localStorage.getItem(STORAGE_KEYS.USERS))      || [];
-const setUsers      = v  => localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(v));
-const getBatches    = () => JSON.parse(localStorage.getItem(STORAGE_KEYS.BATCHES))    || [];
-const setBatches    = v  => localStorage.setItem(STORAGE_KEYS.BATCHES, JSON.stringify(v));
-const getAttendance = () => JSON.parse(localStorage.getItem(STORAGE_KEYS.ATTENDANCE)) || [];
-const setAttendance = v  => localStorage.setItem(STORAGE_KEYS.ATTENDANCE, JSON.stringify(v));
-const getExams      = () => JSON.parse(localStorage.getItem(STORAGE_KEYS.EXAMS))      || [];
-const setExams      = v  => localStorage.setItem(STORAGE_KEYS.EXAMS, JSON.stringify(v));
-const getResults    = () => JSON.parse(localStorage.getItem(STORAGE_KEYS.RESULTS))    || [];
-const setResults    = v  => localStorage.setItem(STORAGE_KEYS.RESULTS, JSON.stringify(v));
-const getFees       = () => JSON.parse(localStorage.getItem(STORAGE_KEYS.FEES))       || [];
-const setFees       = v  => localStorage.setItem(STORAGE_KEYS.FEES, JSON.stringify(v));
-const getLoggedInUser  = () => JSON.parse(localStorage.getItem(STORAGE_KEYS.LOGGED_IN_USER));
-const setLoggedInUser  = v  => localStorage.setItem(STORAGE_KEYS.LOGGED_IN_USER, JSON.stringify(v));
-const clearLoggedInUser = () => localStorage.removeItem(STORAGE_KEYS.LOGGED_IN_USER);
-
-// =====================================================================
-// HELPERS
-// =====================================================================
-function getBatchNameById(id) { const b = getBatches().find(x => x.id === id); return b ? b.name : ''; }
-function getStudentNameById(id) { const u = getUsers().find(x => x.id === id); return u ? u.name : ''; }
-function getStudentById(id) { return getUsers().find(x => x.id === id); }
-function getStudentBatchId(sid) { const s = getStudentById(sid); return s ? s.batchId : null; }
-function getStudentEmailById(sid) { const s = getStudentById(sid); return s ? s.email : ''; }
-function getStudentPhoneById(sid) { const s = getStudentById(sid); return s ? s.phone : ''; }
-
-function formatDateAndDay(dateStr) {
+function formatDate(dateStr) {
+  if (!dateStr) return '';
   const d = new Date(dateStr);
-  if (isNaN(d)) return { date: dateStr, day: '' };
-  return {
-    date: d.toLocaleDateString(undefined, { year:'numeric', month:'short', day:'numeric' }),
-    day:  d.toLocaleDateString(undefined, { weekday:'long' })
-  };
+  if (isNaN(d)) return dateStr;
+  return d.toLocaleDateString(undefined,{year:'numeric',month:'short',day:'numeric'});
 }
-function convertTo12Hour(t) {
+function formatDay(dateStr) {
+  if (!dateStr) return '';
+  const d = new Date(dateStr);
+  if (isNaN(d)) return '';
+  return d.toLocaleDateString(undefined,{weekday:'long'});
+}
+function to12Hour(t) {
   if (!t) return '';
-  const [h, m] = t.split(':');
-  let hr = parseInt(h, 10);
-  const ampm = hr >= 12 ? 'PM' : 'AM';
-  hr = hr % 12 || 12;
-  return `${hr}:${m} ${ampm}`;
+  const [h,m] = t.split(':');
+  let hr = parseInt(h,10);
+  const ap = hr>=12?'PM':'AM';
+  hr = hr%12||12;
+  return `${hr}:${m} ${ap}`;
 }
-
-// Auto roll number: next sequential per batch+std+division combo
-function generateRollNo(batchId, std, division, excludeId) {
-  const students = getUsers().filter(u =>
-    u.role === 'student' &&
-    u.batchId === batchId &&
-    String(u.std) === String(std) &&
-    u.division === division &&
-    u.id !== excludeId
-  );
-  const max = students.reduce((mx, s) => Math.max(mx, s.rollNo || 0), 0);
-  return max + 1;
+function getBatchName(id) {
+  const b = allBatches.find(x=>x.id===id);
+  return b ? b.name : '';
 }
+function getStudentById(id) { return allStudents.find(s=>s.id===id); }
 
-// =====================================================================
-// TOAST
-// =====================================================================
-function showToast(message, type = 'info', duration = 4000) {
-  const icons = { success:'✅', error:'❌', warning:'⚠️', info:'ℹ️' };
-  const container = document.getElementById('toast-container');
-  const toast = document.createElement('div');
-  toast.className = `toast toast-${type}`;
-  toast.innerHTML = `<span class="toast-icon">${icons[type]||'ℹ️'}</span><span class="toast-msg">${message}</span><button class="toast-close" aria-label="Close">✕</button>`;
-  container.appendChild(toast);
-  const remove = () => { toast.classList.add('hide'); toast.addEventListener('animationend', () => toast.remove(), {once:true}); };
-  toast.querySelector('.toast-close').addEventListener('click', remove);
-  setTimeout(remove, duration);
+function exportToExcel(data, filename) {
+  if (!data||!data.length) { showToast('No data to export.','warning'); return; }
+  const ws = XLSX.utils.json_to_sheet(data);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+  XLSX.writeFile(wb, `${filename}_${new Date().toISOString().slice(0,10)}.xlsx`);
+  showToast('Excel downloaded!','success');
 }
 
 // =====================================================================
-// DOM REFS
+// API HELPERS
 // =====================================================================
-const loginScreen    = document.getElementById('login-screen');
-const adminDashboard = document.getElementById('admin-dashboard');
-const studentDashboard = document.getElementById('student-dashboard');
-const loginForm = document.getElementById('login-form');
-const roleSelect = document.getElementById('role');
-const usernameInput  = document.getElementById('username');
-const passwordInput  = document.getElementById('password');
+async function api(method, url, body) {
+  const opts = { method, headers: {'Content-Type':'application/json'} };
+  if (body) opts.body = JSON.stringify(body);
+  const res = await fetch(url, opts);
+  return res.json();
+}
 
-// Admin header
-const adminUsernameDisplay = document.getElementById('admin-username');
-const adminLogoutBtn       = document.getElementById('admin-logout-btn');
-const sidebarToggleBtn     = document.getElementById('sidebar-toggle-btn');
-const sidebarNav           = document.querySelector('nav.w-64');
-const adminBackBtn         = document.getElementById('admin-back-btn');
-
-// Admin sections
-const adminDashboardSection      = document.getElementById('admin-dashboard-section');
-const adminProfileSection        = document.getElementById('admin-profile-section');
-const attendanceManagementSection= document.getElementById('attendance-management-section');
-const examScheduleSection        = document.getElementById('exam-schedule-section');
-const resultManagementSection    = document.getElementById('result-management-section');
-const batchesManagementSection   = document.getElementById('batches-management-section');
-const addStudentSection          = document.getElementById('add-student-section');
-const studentListSection         = document.getElementById('student-list-section');
-const feesSection                = document.getElementById('fees-section');
-
-const ALL_ADMIN_SECTIONS = [
-  adminDashboardSection, adminProfileSection, attendanceManagementSection,
-  examScheduleSection, resultManagementSection, batchesManagementSection,
-  addStudentSection, studentListSection, feesSection
-];
-
-// Dashboard buttons
-const openAttendanceBtn      = document.getElementById('open-attendance-management');
-const openExamScheduleBtn    = document.getElementById('open-exam-schedule');
-const openResultManagementBtn= document.getElementById('open-result-management');
-const openBatchesManagementBtn=document.getElementById('open-batches-management');
-const openAddStudentBtn      = document.getElementById('open-add-student');
-const openStudentListBtn     = document.getElementById('open-student-list');
-const openFeesBtn            = document.getElementById('open-fees-management');
-
-// Attendance
-const attendanceStudentSelect = document.getElementById('attendance-student-select');
-const attFilterBatch          = document.getElementById('att-filter-batch');
-const attFilterStd            = document.getElementById('att-filter-std');
-const attendanceForm          = document.getElementById('attendance-form');
-const attendanceRecordsTbody  = document.getElementById('attendance-records');
-const attendanceStudentPhone  = document.getElementById('attendance-student-phone');
-const filterBatchSelect       = document.getElementById('filter-batch');
-const filterStudentSelect     = document.getElementById('filter-student');
-const filterMonthInput        = document.getElementById('filter-month');
-const filterDateInput         = document.getElementById('filter-date');
-
-// Exam
-const examScheduleForm = document.getElementById('exam-schedule-form');
-const examScheduleList = document.getElementById('exam-schedule-list');
-const examBatchSelect  = document.getElementById('exam-batch');
-const examTimeInput    = document.getElementById('exam-time');
-
-// Result
-const resultForm         = document.getElementById('result-form');
-const resultTitleInput   = document.getElementById('result-title');
-const resultDateInput    = document.getElementById('result-date');
-const resultBatchFilter  = document.getElementById('result-batch-filter');
-const resultStdFilter    = document.getElementById('result-std-filter');
-const resultStudentSelect= document.getElementById('result-student-select');
-const subjectsContainer  = document.getElementById('subjects-container');
-const addSubjectBtn      = document.getElementById('add-subject-btn');
-const resultsStudentCards= document.getElementById('results-student-cards');
-
-// Batches
-const batchForm      = document.getElementById('batch-form');
-const batchesList    = document.getElementById('batches-list');
-const batchNameInput = document.getElementById('batch-name');
-
-// Add Student
-const addStudentForm      = document.getElementById('add-student-form');
-const studentBatchSelect  = document.getElementById('student-batch');
-const studentStdSelect    = document.getElementById('student-std');
-const studentDivSelect    = document.getElementById('student-division');
-const studentNameInput    = document.getElementById('student-name');
-const studentSurnameInput = document.getElementById('student-surname');
-const studentEmailInput   = document.getElementById('student-email');
-const studentPhoneInput   = document.getElementById('student-phone');
-const studentUsernameInput= document.getElementById('student-username');
-const studentPasswordInput= document.getElementById('student-password');
-const studentRollNoDisplay= document.getElementById('student-rollno-display');
-const studentsListTbody   = document.getElementById('students-list');
-const clearStudentNameBtn = document.getElementById('clear-student-name');
-
-// Admin Profile
-const adminProfileForm    = document.getElementById('admin-profile-form');
-const adminNameInput      = document.getElementById('admin-name');
-const adminEmailInput     = document.getElementById('admin-email');
-const adminPhoneInput     = document.getElementById('admin-phone');
-const adminUsernameInput  = document.getElementById('admin-username-input');
-const adminPasswordInput  = document.getElementById('admin-password-input');
-const toggleCredentialsBtn= document.getElementById('toggle-credentials-btn');
-const credentialsContainer= document.getElementById('student-login-credentials-container');
-const toggleCredentialsIcon=document.getElementById('toggle-credentials-icon');
-
-// Student sections
-const studentSidebar              = document.getElementById('student-sidebar');
-const studentSidebarToggleBtn     = document.getElementById('student-sidebar-toggle-btn');
-const studentBackBtn              = document.getElementById('student-back-btn');
-const studentUsernameDisplay      = document.getElementById('student-username');
-const studentLogoutBtn            = document.getElementById('student-logout-btn');
-const studentNameDisplay          = document.getElementById('student-name-display');
-const studentDashboardSection2    = document.getElementById('student-dashboard-section');
-const studentProfileSection       = document.getElementById('student-profile-section');
-const studentAttendanceSection    = document.getElementById('student-attendance-section');
-const studentExamScheduleSection  = document.getElementById('student-exam-schedule-section');
-const studentResultsSection       = document.getElementById('student-results-section');
-const studentAttendanceRecords    = document.getElementById('student-attendance-records');
-const studentExamScheduleTbody    = document.getElementById('student-exam-schedule');
-const studentResultsList          = document.getElementById('student-results-list');
-const studentResultsDetails       = document.getElementById('student-results-details');
-const resultDetailsTitle          = document.getElementById('result-details-title');
-const resultDetailsTbody          = document.getElementById('result-details-tbody');
-const closeResultDetailsBtn       = document.getElementById('close-result-details');
-const studentFilterBatchSelect    = document.getElementById('student-filter-batch');
-const studentFilterMonthInput     = document.getElementById('student-filter-month');
-const studentFilterDateInput      = document.getElementById('student-filter-date');
-const studentProfileForm          = document.getElementById('student-profile-form');
-const studentNameInputProfile     = document.getElementById('student-name-input');
-const studentEmailInputProfile    = document.getElementById('student-email-input');
-const studentPhoneInputProfile    = document.getElementById('student-phone-input');
-const studentUsernameInputProfile = document.getElementById('student-username-input');
-const studentPasswordInputProfile = document.getElementById('student-password-input');
-
-// Student List Module
-const slFilterBatch = document.getElementById('sl-filter-batch');
-const slFilterStd   = document.getElementById('sl-filter-std');
-const slFilterDiv   = document.getElementById('sl-filter-div');
-const slListBody    = document.getElementById('sl-list-body');
-const slCount       = document.getElementById('sl-count');
-const slExportBtn   = document.getElementById('sl-export-btn');
-
-// Fees Module
-const feeBatchFilter   = document.getElementById('fee-batch-filter');
-const feeStdFilter     = document.getElementById('fee-std-filter');
-const feeDivFilter     = document.getElementById('fee-div-filter');
-const feeStatusFilter  = document.getElementById('fee-status-filter');
-const feeStudentSelect = document.getElementById('fee-student-select');
-const feeAmount        = document.getElementById('fee-amount');
-const feeStatusSet     = document.getElementById('fee-status-set');
-const feeSaveBtn       = document.getElementById('fee-save-btn');
-const feesListBody     = document.getElementById('fees-list-body');
-const feesCount        = document.getElementById('fees-count');
-const feesExportBtn    = document.getElementById('fees-export-btn');
-
-// Nav buttons
-const adminNavButtons   = document.querySelectorAll('nav button[data-section]');
-const studentNavButtons = studentSidebar.querySelectorAll('button[data-section]');
-
-let currentUser = getLoggedInUser();
+// =====================================================================
+// LOAD ALL DATA
+// =====================================================================
+async function loadAllData() {
+  const [studentsRes, batchesRes, attendanceRes, examsRes, resultsRes, feesRes] = await Promise.all([
+    api('GET','/api/students'),
+    api('GET','/api/batches'),
+    api('GET','/api/attendance'),
+    api('GET','/api/exams'),
+    api('GET','/api/results'),
+    api('GET','/api/fees'),
+  ]);
+  if (studentsRes.success)  allStudents  = studentsRes.students;
+  if (batchesRes.success)   allBatches   = batchesRes.batches;
+  if (attendanceRes.success) allAttendance = attendanceRes.attendance;
+  if (examsRes.success)     allExams     = examsRes.exams;
+  if (resultsRes.success)   allResults   = resultsRes.results;
+  if (feesRes.success)      allFees      = feesRes.fees;
+}
 
 // =====================================================================
 // SECTION VISIBILITY
 // =====================================================================
-function showAdminSection(sectionId) {
-  ALL_ADMIN_SECTIONS.forEach(s => s.id === sectionId ? s.classList.remove('hidden') : s.classList.add('hidden'));
-  sectionId === 'admin-dashboard-section' ? adminBackBtn.classList.add('hidden') : adminBackBtn.classList.remove('hidden');
-  if (window.innerWidth <= 768) sidebarNav.classList.remove('open');
+const ALL_ADMIN_SECTIONS = ['admin-dashboard-section','admin-profile-section','attendance-management-section',
+  'exam-schedule-section','result-management-section','batches-management-section',
+  'add-student-section','student-list-section','fees-section'];
+
+function showAdminSection(id) {
+  ALL_ADMIN_SECTIONS.forEach(s => document.getElementById(s).classList.toggle('hidden', s!==id));
+  document.getElementById('admin-back-btn').classList.toggle('hidden', id==='admin-dashboard-section');
+  if (window.innerWidth<=768) document.querySelector('nav.w-64').classList.remove('open');
 }
-function showStudentSection(sectionId) {
-  [studentDashboardSection2, studentProfileSection, studentAttendanceSection, studentExamScheduleSection, studentResultsSection]
-    .forEach(s => s.id === sectionId ? s.classList.remove('hidden') : s.classList.add('hidden'));
-  sectionId === 'student-dashboard-section' ? studentBackBtn.classList.add('hidden') : studentBackBtn.classList.remove('hidden');
-  if (window.innerWidth <= 768) studentSidebar.classList.remove('open');}
+const ALL_STUDENT_SECTIONS = ['student-dashboard-section','student-profile-section',
+  'student-attendance-section','student-exam-schedule-section','student-results-section'];
+function showStudentSection(id) {
+  ALL_STUDENT_SECTIONS.forEach(s => document.getElementById(s).classList.toggle('hidden', s!==id));
+  document.getElementById('student-back-btn').classList.toggle('hidden', id==='student-dashboard-section');
+  if (window.innerWidth<=768) document.getElementById('student-sidebar').classList.remove('open');
+}
 
 // =====================================================================
 // POPULATE DROPDOWNS
 // =====================================================================
-// Batch dropdown helpers:
-function populateBatchDropdown(sel, includeAll = true, selectedVal = '') {
+function populateBatchDropdown(sel, includeAll=true, selectedVal='') {
   if (!sel) return;
-  const batches = getBatches();
   sel.innerHTML = includeAll ? '<option value="">All Batches</option>' : '<option value="" disabled selected>Select batch</option>';
-  batches.forEach(b => {
+  allBatches.forEach(b => {
     const o = document.createElement('option');
-    o.value = b.id; o.textContent = b.name;
+    o.value=b.id; o.textContent=b.name;
     sel.appendChild(o);
   });
   if (selectedVal) sel.value = selectedVal;
 }
 function populateAllBatchDropdowns() {
-  populateBatchDropdown(studentBatchSelect,    false);
-  populateBatchDropdown(examBatchSelect,        false);
-  populateBatchDropdown(filterBatchSelect,      true);
-  populateBatchDropdown(studentFilterBatchSelect,true);
-  populateBatchDropdown(resultBatchFilter,      true);
-  populateBatchDropdown(slFilterBatch,          true);
-  populateBatchDropdown(feeBatchFilter,         true);
-  populateBatchDropdown(attFilterBatch,         true);
+  populateBatchDropdown(document.getElementById('student-batch'), false);
+  populateBatchDropdown(document.getElementById('exam-batch'), false);
+  populateBatchDropdown(document.getElementById('filter-batch'), true);
+  populateBatchDropdown(document.getElementById('result-batch-filter'), true);
+  populateBatchDropdown(document.getElementById('sl-filter-batch'), true);
+  populateBatchDropdown(document.getElementById('fee-batch-filter'), true);
+  populateBatchDropdown(document.getElementById('att-filter-batch'), true);
 }
-
-// Populate std dropdowns (dynamic from existing students)
 function getUsedStds() {
-  const stds = getUsers().filter(u=>u.role==='student').map(u=>u.std).filter(Boolean);
-  return [...new Set(stds)].sort((a,b)=>parseInt(a)-parseInt(b));
+  const s = [...new Set(allStudents.map(u=>u.std).filter(Boolean))];
+  return s.sort((a,b)=>parseInt(a)-parseInt(b));
 }
-function populateStdDropdown(sel, includeAll = true) {
+function populateStdDropdown(sel, includeAll=true) {
   if (!sel) return;
   const cur = sel.value;
   sel.innerHTML = includeAll ? '<option value="">All Std</option>' : '<option value="">-- Select --</option>';
   getUsedStds().forEach(s => {
     const o = document.createElement('option');
-    o.value = s; o.textContent = `Std ${s}`;
+    o.value=s; o.textContent=`Std ${s}`;
     sel.appendChild(o);
   });
   sel.value = cur;
 }
 function populateAllStdDropdowns() {
-  populateStdDropdown(attFilterStd,    true);
-  populateStdDropdown(resultStdFilter, true);
-  populateStdDropdown(slFilterStd,     true);
-  populateStdDropdown(feeStdFilter,    true);
+  ['att-filter-std','result-std-filter','sl-filter-std','fee-std-filter'].forEach(id => {
+    populateStdDropdown(document.getElementById(id), true);
+  });
 }
-
-// Populate attendance student select based on batch+std filters
 function populateAttendanceStudentSelect() {
-  const batchId = attFilterBatch.value;
-  const std     = attFilterStd.value;
-  attendanceStudentSelect.innerHTML = '<option value="" disabled selected>Select student</option>';
-  let students = getUsers().filter(u => u.role === 'student');
-  if (batchId) students = students.filter(u => u.batchId === batchId);
-  if (std)     students = students.filter(u => String(u.std) === String(std));
+  const batchId = document.getElementById('att-filter-batch').value;
+  const std     = document.getElementById('att-filter-std').value;
+  const sel     = document.getElementById('attendance-student-select');
+  sel.innerHTML = '<option value="" disabled selected>Select student</option>';
+  let students = allStudents;
+  if (batchId) students = students.filter(s=>s.batch_id===batchId);
+  if (std)     students = students.filter(s=>String(s.std)===String(std));
   students.forEach(s => {
     const o = document.createElement('option');
-    o.value = s.id;
-    o.textContent = `${s.name} ${s.surname||''} (Std ${s.std||''} ${s.division||''} - Roll ${s.rollNo||''})`;
-    attendanceStudentSelect.appendChild(o);
+    o.value=s.id; o.textContent=`${s.name} ${s.surname||''} (Std ${s.std||''} ${s.division||''} - Roll ${s.roll_no||''})`;
+    sel.appendChild(o);
   });
-  attendanceStudentPhone.textContent = '';
+  document.getElementById('attendance-student-phone').textContent = '';
 }
-
-// Populate result student select based on batch+std filters
 function populateResultStudentSelect() {
-  const batchId = resultBatchFilter.value;
-  const std     = resultStdFilter.value;
-  resultStudentSelect.innerHTML = '<option value="" disabled selected>Select student</option>';
-  let students = getUsers().filter(u => u.role === 'student');
-  if (batchId) students = students.filter(u => u.batchId === batchId);
-  if (std)     students = students.filter(u => String(u.std) === String(std));
+  const batchId = document.getElementById('result-batch-filter').value;
+  const std     = document.getElementById('result-std-filter').value;
+  const sel     = document.getElementById('result-student-select');
+  sel.innerHTML = '<option value="" disabled selected>Select student</option>';
+  let students = allStudents;
+  if (batchId) students = students.filter(s=>s.batch_id===batchId);
+  if (std)     students = students.filter(s=>String(s.std)===String(std));
   students.forEach(s => {
     const o = document.createElement('option');
-    o.value = s.id;
-    o.textContent = `${s.name} ${s.surname||''} (Std ${s.std||''} ${s.division||''} - Roll ${s.rollNo||''})`;
-    resultStudentSelect.appendChild(o);
+    o.value=s.id; o.textContent=`${s.name} ${s.surname||''} (Roll ${s.roll_no||''})`;
+    sel.appendChild(o);
   });
 }
-
-// Populate fee student select based on filters
 function populateFeeStudentSelect() {
-  const batchId = feeBatchFilter.value;
-  const std     = feeStdFilter.value;
-  const div     = feeDivFilter.value;
-  feeStudentSelect.innerHTML = '<option value="" disabled selected>Select student</option>';
-  let students = getUsers().filter(u => u.role === 'student');
-  if (batchId) students = students.filter(u => u.batchId === batchId);
-  if (std)     students = students.filter(u => String(u.std) === String(std));
-  if (div)     students = students.filter(u => u.division === div);
+  const batchId = document.getElementById('fee-batch-filter').value;
+  const std     = document.getElementById('fee-std-filter').value;
+  const div     = document.getElementById('fee-div-filter').value;
+  const sel     = document.getElementById('fee-student-select');
+  sel.innerHTML = '<option value="" disabled selected>Select student</option>';
+  let students = allStudents;
+  if (batchId) students = students.filter(s=>s.batch_id===batchId);
+  if (std)     students = students.filter(s=>String(s.std)===String(std));
+  if (div)     students = students.filter(s=>s.division===div);
   students.forEach(s => {
     const o = document.createElement('option');
-    o.value = s.id;
-    o.textContent = `${s.name} ${s.surname||''} (Roll ${s.rollNo||''})`;
-    feeStudentSelect.appendChild(o);
+    o.value=s.id; o.textContent=`${s.name} ${s.surname||''} (Roll ${s.roll_no||''})`;
+    sel.appendChild(o);
   });
 }
-
-// Attendance filter-student dropdown (records table)
 function populateFilterStudentDropdown() {
-  const batchId = filterBatchSelect.value;
-  filterStudentSelect.innerHTML = '<option value="">All Students</option>';
-  let students = getUsers().filter(u => u.role === 'student');
-  if (batchId) students = students.filter(u => u.batchId === batchId);
+  const batchId = document.getElementById('filter-batch').value;
+  const sel = document.getElementById('filter-student');
+  sel.innerHTML = '<option value="">All</option>';
+  let students = allStudents;
+  if (batchId) students = students.filter(s=>s.batch_id===batchId);
   students.forEach(s => {
     const o = document.createElement('option');
-    o.value = s.id;
-    o.textContent = `${s.name} ${s.surname||''}`;
-    filterStudentSelect.appendChild(o);
+    o.value=s.id; o.textContent=`${s.name} ${s.surname||''}`;
+    sel.appendChild(o);
   });
 }
 
 // =====================================================================
-// ATTENDANCE RECORDS TABLE
+// RENDER FUNCTIONS
 // =====================================================================
-function updateAttendanceRecordsTable() {
-  const selBatch   = filterBatchSelect.value;
-  const selStudent = filterStudentSelect.value;
-  const selMonth   = filterMonthInput.value;
-  const selDate    = filterDateInput.value;
-  let records = getAttendance();
-  if (selBatch)   records = records.filter(r => r.batchId === selBatch);
-  if (selStudent) records = records.filter(r => r.studentId === selStudent);
-  if (selMonth)   records = records.filter(r => r.date.startsWith(selMonth));
-  if (selDate)    records = records.filter(r => r.date === selDate);
-  attendanceRecordsTbody.innerHTML = '';
+function renderAttendanceTable() {
+  const batchId   = document.getElementById('filter-batch').value;
+  const studentId = document.getElementById('filter-student').value;
+  const month     = document.getElementById('filter-month').value;
+  const date      = document.getElementById('filter-date').value;
+  let records = allAttendance;
+  if (batchId)   records = records.filter(r=>r.batch_id===batchId);
+  if (studentId) records = records.filter(r=>r.student_id===studentId);
+  if (month)     records = records.filter(r=>r.date&&r.date.startsWith(month));
+  if (date)      records = records.filter(r=>r.date===date||r.date&&r.date.startsWith(date));
+  const tbody = document.getElementById('attendance-records');
+  tbody.innerHTML = '';
   records.forEach(rec => {
-    const {date, day} = formatDateAndDay(rec.date);
-    const s = getStudentById(rec.studentId);
+    const s = getStudentById(rec.student_id);
     const tr = document.createElement('tr');
     tr.className = 'hover:bg-indigo-100';
-    tr.innerHTML = `
-      <td class="py-2 px-4">${s ? s.name+' '+(s.surname||'') : ''}</td>
-      <td class="py-2 px-4">${getBatchNameById(rec.batchId)}</td>
-      <td class="py-2 px-4">${s ? 'Std '+(s.std||'') : ''}</td>
-      <td class="py-2 px-4">${s ? (s.division||'') : ''}</td>
-      <td class="py-2 px-4">${date}</td>
-      <td class="py-2 px-4">${day}</td>
+    tr.innerHTML = `<td class="py-2 px-4">${s?s.name+' '+(s.surname||''):''}</td>
+      <td class="py-2 px-4">${getBatchName(rec.batch_id)}</td>
+      <td class="py-2 px-4">${s?'Std '+(s.std||''):''}</td>
+      <td class="py-2 px-4">${s?(s.division||''):''}</td>
+      <td class="py-2 px-4">${formatDate(rec.date)}</td>
+      <td class="py-2 px-4">${formatDay(rec.date)}</td>
       <td class="py-2 px-4 font-semibold ${rec.status==='Present'?'text-green-600':'text-red-600'}">${rec.status}</td>`;
-    attendanceRecordsTbody.appendChild(tr);
+    tbody.appendChild(tr);
   });
 }
 
-// =====================================================================
-// EXAM SCHEDULE TABLE
-// =====================================================================
-function updateExamScheduleTable() {
-  const exams = getExams();
-  examScheduleList.innerHTML = '';
-  exams.forEach(exam => {
-    const {date} = formatDateAndDay(exam.date);
+function renderExamTable() {
+  const tbody = document.getElementById('exam-schedule-list');
+  tbody.innerHTML = '';
+  allExams.forEach(e => {
     const tr = document.createElement('tr');
     tr.className = 'hover:bg-indigo-100';
-    tr.innerHTML = `<td class="py-2 px-4">${exam.name}</td><td class="py-2 px-4">${getBatchNameById(exam.batchId)}</td><td class="py-2 px-4">${date}</td><td class="py-2 px-4">${convertTo12Hour(exam.time)}</td>`;
-    examScheduleList.appendChild(tr);
+    tr.innerHTML = `<td class="py-2 px-4">${e.name}</td><td class="py-2 px-4">${getBatchName(e.batch_id)}</td><td class="py-2 px-4">${formatDate(e.date)}</td><td class="py-2 px-4">${to12Hour(e.time)}</td>`;
+    tbody.appendChild(tr);
   });
 }
 
-// =====================================================================
-// BATCHES LIST
-// =====================================================================
-function updateBatchesList() {
-  const batches = getBatches();
-  batchesList.innerHTML = '';
-  batches.forEach(b => {
+function renderBatchesList() {
+  const ul = document.getElementById('batches-list');
+  ul.innerHTML = '';
+  allBatches.forEach(b => {
     const li = document.createElement('li');
     li.className = 'flex justify-between items-center bg-white border border-indigo-200 rounded-md px-4 py-2';
     li.innerHTML = `<span class="font-semibold text-indigo-800">${b.name}</span>
-      <button class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md flex items-center space-x-1" onclick="deleteBatch('${b.id}')"><i class="fas fa-trash-alt"></i><span>Delete</span></button>`;
-    batchesList.appendChild(li);
+      <button onclick="deleteBatch('${b.id}')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md flex items-center space-x-1"><i class="fas fa-trash-alt"></i><span>Delete</span></button>`;
+    ul.appendChild(li);
   });
 }
-function deleteBatch(batchId) {
-  if (!confirm('Delete this batch? Related students will have no batch assigned.')) return;
-  setBatches(getBatches().filter(b => b.id !== batchId));
-  setUsers(getUsers().map(u => u.batchId === batchId ? {...u, batchId: null} : u));
-  setAttendance(getAttendance().filter(a => a.batchId !== batchId));
-  setExams(getExams().filter(e => e.batchId !== batchId));
-  showToast('Batch deleted.', 'success');
-  populateAllBatchDropdowns();
-  populateAttendanceStudentSelect();
-  updateBatchesList();
-  updateStudentsListTable();
-  updateAttendanceRecordsTable();
-}
 
-// =====================================================================
-// STUDENTS LIST TABLE (in Add Student section)
-// =====================================================================
-function updateStudentsListTable() {
-  const students = getUsers().filter(u => u.role === 'student');
-  studentsListTbody.innerHTML = '';
-  students.forEach(s => {
+function renderStudentsTable() {
+  const tbody = document.getElementById('students-list');
+  tbody.innerHTML = '';
+  allStudents.forEach(s => {
     const tr = document.createElement('tr');
     tr.className = 'hover:bg-indigo-100';
     tr.dataset.studentId = s.id;
-    tr.innerHTML = `
-      <td class="py-2 px-3">${s.rollNo||''}</td>
+    tr.innerHTML = `<td class="py-2 px-3">${s.roll_no||''}</td>
       <td class="py-2 px-3">${s.name}</td>
       <td class="py-2 px-3">${s.surname||''}</td>
-      <td class="py-2 px-3">${getBatchNameById(s.batchId)}</td>
+      <td class="py-2 px-3">${getBatchName(s.batch_id)}</td>
       <td class="py-2 px-3">Std ${s.std||''}</td>
       <td class="py-2 px-3">${s.division||''}</td>
       <td class="py-2 px-3">${s.phone||''}</td>
       <td class="py-2 px-3">${s.username}</td>
       <td class="py-2 px-3 text-center space-x-2">
-        <button class="edit-student-btn text-indigo-600 hover:text-indigo-800" title="Edit"><i class="fas fa-edit"></i></button>
-        <button class="delete-student-btn text-red-600 hover:text-red-800" title="Delete"><i class="fas fa-trash-alt"></i></button>
+        <button class="edit-student-btn text-indigo-600 hover:text-indigo-800"><i class="fas fa-edit"></i></button>
+        <button class="delete-student-btn text-red-600 hover:text-red-800"><i class="fas fa-trash-alt"></i></button>
       </td>`;
-    studentsListTbody.appendChild(tr);
+    tbody.appendChild(tr);
   });
-  attachStudentListEventListeners();
-  updateStudentLoginCredentialsList();
-}
-function attachStudentListEventListeners() {
   document.querySelectorAll('.edit-student-btn').forEach(btn => btn.onclick = e => editStudent(e.target.closest('tr').dataset.studentId));
   document.querySelectorAll('.delete-student-btn').forEach(btn => btn.onclick = e => deleteStudent(e.target.closest('tr').dataset.studentId));
+  renderCredentialsList();
 }
 
-function editStudent(sid) {
-  const s = getUsers().find(u => u.id === sid);
-  if (!s) return;
-  studentNameInput.value     = s.name;
-  studentSurnameInput.value  = s.surname || '';
-  studentEmailInput.value    = s.email || '';
-  studentPhoneInput.value    = s.phone || '';
-  studentUsernameInput.value = s.username;
-  studentPasswordInput.value = s.password;
-  populateBatchDropdown(studentBatchSelect, false, s.batchId);
-  studentStdSelect.value     = s.std || '';
-  studentDivSelect.value     = s.division || '';
-  studentRollNoDisplay.value = s.rollNo || '';
-  addStudentForm.dataset.editingId = sid;
-  addStudentForm.querySelector('button[type="submit"]').textContent = 'Update Student';
-  window.scrollTo({ top: addStudentSection.offsetTop, behavior: 'smooth' });
-}
-
-function deleteStudent(sid) {
-  if (!confirm('Delete this student? This cannot be undone.')) return;
-  setUsers(getUsers().filter(u => u.id !== sid));
-  setAttendance(getAttendance().filter(a => a.studentId !== sid));
-  setResults(getResults().filter(r => r.studentId !== sid));
-  setFees(getFees().filter(f => f.studentId !== sid));
-  showToast('Student deleted.', 'success');
-  populateAllBatchDropdowns();
-  populateAllStdDropdowns();
-  populateAttendanceStudentSelect();
-  updateStudentsListTable();
-  updateAttendanceRecordsTable();
-  updateResultsStudentCards();
-}
-
-// =====================================================================
-// STUDENT LOGIN CREDENTIALS LIST
-// =====================================================================
-function updateStudentLoginCredentialsList() {
+function renderCredentialsList() {
   const tbody = document.getElementById('student-login-credentials-list');
-  const students = getUsers().filter(u => u.role === 'student');
+  tbody.innerHTML = '';
+  allStudents.forEach(s => {
+    const tr = document.createElement('tr');
+    tr.dataset.studentId = s.id;
+    tr.innerHTML = `<td class="py-2 px-3">${s.name} ${s.surname||''}</td>
+      <td class="py-2 px-3">${getBatchName(s.batch_id)}</td>
+      <td class="py-2 px-3">Std ${s.std||''}</td>
+      <td class="py-2 px-3">${s.division||''}</td>
+      <td class="py-2 px-3">${s.roll_no||''}</td>
+      <td class="py-2 px-3"><input type="text" class="edit-username w-full border border-indigo-300 rounded-md px-2 py-1" value="${s.username}" /></td>
+      <td class="py-2 px-3"><input type="text" class="edit-password w-full border border-indigo-300 rounded-md px-2 py-1" value="${s.password}" /></td>
+      <td class="py-2 px-3 text-center"><button class="save-cred-btn bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-md"><i class="fas fa-save"></i></button></td>`;
+    tbody.appendChild(tr);
+  });
+  document.querySelectorAll('.save-cred-btn').forEach(btn => btn.onclick = async e => {
+    const tr = e.target.closest('tr');
+    const sid = tr.dataset.studentId;
+    const nu = tr.querySelector('.edit-username').value.trim();
+    const np = tr.querySelector('.edit-password').value;
+    if (!nu||!np) { showToast('Username/password cannot be empty.','error'); return; }
+    const s = allStudents.find(x=>x.id===sid);
+    const res = await api('PUT',`/api/users/${sid}`,{...s, username:nu, password:np});
+    if (res.success) {
+      const idx = allStudents.findIndex(x=>x.id===sid);
+      if (idx!==-1) { allStudents[idx].username=nu; allStudents[idx].password=np; }
+      showToast('Credentials updated.','success');
+    } else showToast(res.message||'Error','error');
+  });
+}
+
+function renderResultsCards() {
+  const div = document.getElementById('results-student-cards');
+  div.innerHTML = '';
+  if (!allResults.length) { div.innerHTML='<p class="text-gray-600">No results yet.</p>'; return; }
+  const grouped = {};
+  allResults.forEach(r => {
+    const key = `${r.student_id}||${r.title}||${r.result_date}`;
+    if (!grouped[key]) grouped[key]=[];
+    grouped[key].push(r);
+  });
+  Object.entries(grouped).forEach(([key,arr]) => {
+    const [sid,title,resultDate] = key.split('||');
+    const s = getStudentById(sid);
+    const card = document.createElement('div');
+    card.className = 'bg-white rounded-md shadow-md p-6 border border-indigo-200';
+    card.innerHTML = `<div class="flex justify-between items-center mb-3">
+      <h5 class="text-lg font-semibold text-indigo-700">${s?s.name+' '+(s.surname||''):sid} — ${title} (${formatDate(resultDate)})</h5>
+      <button onclick="deleteResultSet('${sid}','${title}','${resultDate}')" class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md"><i class="fas fa-trash-alt mr-1"></i>Delete</button>
+    </div>
+    <div class="overflow-x-auto">
+      <table class="min-w-full bg-indigo-50 rounded-md">
+        <thead class="bg-indigo-600 text-white"><tr><th class="py-2 px-4 text-left">Subject</th><th class="py-2 px-4 text-left">Marks</th><th class="py-2 px-4 text-left">Total</th></tr></thead>
+        <tbody class="divide-y divide-indigo-200">${arr.map(r=>`<tr class="hover:bg-indigo-100"><td class="py-2 px-4">${r.subject}</td><td class="py-2 px-4">${r.marks_obtained}</td><td class="py-2 px-4">${r.total_marks}</td></tr>`).join('')}</tbody>
+      </table>
+    </div>`;
+    div.appendChild(card);
+  });
+}
+
+function renderStudentListModule() {
+  const batchId = document.getElementById('sl-filter-batch').value;
+  const std     = document.getElementById('sl-filter-std').value;
+  const div     = document.getElementById('sl-filter-div').value;
+  let students = allStudents;
+  if (batchId) students = students.filter(s=>s.batch_id===batchId);
+  if (std)     students = students.filter(s=>String(s.std)===String(std));
+  if (div)     students = students.filter(s=>s.division===div);
+  students.sort((a,b)=>(a.roll_no||0)-(b.roll_no||0));
+  document.getElementById('sl-count').textContent = `Showing ${students.length} student${students.length!==1?'s':''}`;
+  const tbody = document.getElementById('sl-list-body');
   tbody.innerHTML = '';
   students.forEach(s => {
     const tr = document.createElement('tr');
-    tr.dataset.studentId = s.id;
-    tr.innerHTML = `
-      <td class="py-2 px-4">${s.name} ${s.surname||''}</td>
-      <td class="py-2 px-4">${getBatchNameById(s.batchId)}</td>
-      <td class="py-2 px-4">Std ${s.std||''}</td>
-      <td class="py-2 px-4">${s.division||''}</td>
-      <td class="py-2 px-4">${s.rollNo||''}</td>
-      <td class="py-2 px-4"><input type="text" class="edit-username w-full border border-indigo-300 rounded-md px-2 py-1" value="${s.username}" /></td>
-      <td class="py-2 px-4"><input type="text" class="edit-password w-full border border-indigo-300 rounded-md px-2 py-1" value="${s.password}" /></td>
-      <td class="py-2 px-4 text-center"><button class="save-credentials-btn bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded-md"><i class="fas fa-save"></i></button></td>`;
+    tr.className = 'hover:bg-indigo-100';
+    tr.innerHTML = `<td class="py-2 px-4">${s.roll_no||''}</td><td class="py-2 px-4">${s.name}</td><td class="py-2 px-4">${s.surname||''}</td><td class="py-2 px-4">Std ${s.std||''}</td><td class="py-2 px-4">${s.division||''}</td><td class="py-2 px-4">${getBatchName(s.batch_id)}</td><td class="py-2 px-4">${s.phone||''}</td><td class="py-2 px-4">${s.email||''}</td>`;
     tbody.appendChild(tr);
   });
-  attachSaveCredentialsListeners();
-}
-function attachSaveCredentialsListeners() {
-  document.querySelectorAll('.save-credentials-btn').forEach(btn => {
-    btn.onclick = e => {
-      const tr = e.target.closest('tr');
-      const sid = tr.dataset.studentId;
-      const nu = tr.querySelector('.edit-username').value.trim();
-      const np = tr.querySelector('.edit-password').value;
-      if (!nu || !np) { showToast('Username/password cannot be empty.','error'); return; }
-      const users = getUsers();
-      if (users.some(u => u.username.toLowerCase()===nu.toLowerCase() && u.id!==sid)) { showToast('Username already exists.','error'); return; }
-      const idx = users.findIndex(u => u.id===sid);
-      if (idx!==-1) { users[idx].username=nu; users[idx].password=np; setUsers(users); showToast('Credentials updated.','success'); updateStudentsListTable(); }
-    };
-  });
 }
 
-// =====================================================================
-// RESULTS CARDS (ADMIN)
-// =====================================================================
-function updateResultsStudentCards() {
-  const results = getResults();
-  resultsStudentCards.innerHTML = '';
-  if (!results.length) { resultsStudentCards.innerHTML = '<p class="text-gray-600">No results available.</p>'; return; }
-  const grouped = {};
-  results.forEach(r => {
-    if (!grouped[r.studentId]) grouped[r.studentId] = {};
-    const key = `${r.title}||${r.resultDate}`;
-    if (!grouped[r.studentId][key]) grouped[r.studentId][key] = [];
-    grouped[r.studentId][key].push(r);
-  });
-  Object.entries(grouped).forEach(([sid, byTitle]) => {
-    const s = getStudentById(sid);
-    const sName = s ? `${s.name} ${s.surname||''}` : sid;
-    Object.entries(byTitle).forEach(([key, arr]) => {
-      const [title, resultDate] = key.split('||');
-      const dateFmt = formatDateAndDay(resultDate).date;
-      const card = document.createElement('div');
-      card.className = 'bg-white rounded-md shadow-md p-6 border border-indigo-200';
-      const hdr = document.createElement('div');
-      hdr.className = 'flex justify-between items-center mb-3';
-      hdr.innerHTML = `<h5 class="text-lg font-semibold text-indigo-700">${sName} — ${title} (${dateFmt})</h5>
-        <button class="bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md" onclick="deleteResultSet('${sid}','${title}','${resultDate}')"><i class="fas fa-trash-alt mr-1"></i>Delete</button>`;
-      card.appendChild(hdr);
-      const tbl = document.createElement('div');
-      tbl.className = 'overflow-x-auto';
-      tbl.innerHTML = `<table class="min-w-full bg-indigo-50 rounded-md">
-        <thead class="bg-indigo-600 text-white"><tr><th class="py-2 px-4 text-left">Subject</th><th class="py-2 px-4 text-left">Marks</th><th class="py-2 px-4 text-left">Total</th></tr></thead>
-        <tbody class="divide-y divide-indigo-200">${arr.map(r=>`<tr class="hover:bg-indigo-100"><td class="py-2 px-4">${r.subject}</td><td class="py-2 px-4">${r.marksObtained}</td><td class="py-2 px-4">${r.totalMarks}</td></tr>`).join('')}</tbody>
-      </table>`;
-      card.appendChild(tbl);
-      resultsStudentCards.appendChild(card);
-    });
-  });
-}
-function deleteResultSet(sid, title, resultDate) {
-  if (!confirm(`Delete result "${title}" for this student?`)) return;
-  setResults(getResults().filter(r => !(r.studentId===sid && r.title===title && r.resultDate===resultDate)));
-  showToast('Result deleted.','success');
-  updateResultsStudentCards();
-}
-
-// =====================================================================
-// LIST OF STUDENTS MODULE
-// =====================================================================
-function updateStudentListModule() {
-  const batchId = slFilterBatch.value;
-  const std     = slFilterStd.value;
-  const div     = slFilterDiv.value;
-  let students = getUsers().filter(u => u.role==='student');
-  if (batchId) students = students.filter(u => u.batchId === batchId);
-  if (std)     students = students.filter(u => String(u.std) === String(std));
-  if (div)     students = students.filter(u => u.division === div);
-  students.sort((a,b) => (a.rollNo||0)-(b.rollNo||0));
-  slCount.textContent = `Showing ${students.length} student${students.length!==1?'s':''}`;
-  slListBody.innerHTML = '';
-  students.forEach(s => {
-    const tr = document.createElement('tr');
-    tr.className = 'hover:bg-indigo-100';
-    tr.innerHTML = `
-      <td class="py-2 px-4">${s.rollNo||''}</td>
-      <td class="py-2 px-4">${s.name}</td>
-      <td class="py-2 px-4">${s.surname||''}</td>
-      <td class="py-2 px-4">Std ${s.std||''}</td>
-      <td class="py-2 px-4">${s.division||''}</td>
-      <td class="py-2 px-4">${getBatchNameById(s.batchId)}</td>
-      <td class="py-2 px-4">${s.phone||''}</td>
-      <td class="py-2 px-4">${s.email||''}</td>`;
-    slListBody.appendChild(tr);
-  });
-}
-
-// Export student list to Excel
-slExportBtn.addEventListener('click', () => {
-  const batchId = slFilterBatch.value;
-  const std     = slFilterStd.value;
-  const div     = slFilterDiv.value;
-  let students = getUsers().filter(u => u.role==='student');
-  if (batchId) students = students.filter(u => u.batchId === batchId);
-  if (std)     students = students.filter(u => String(u.std) === String(std));
-  if (div)     students = students.filter(u => u.division === div);
-  students.sort((a,b) => (a.rollNo||0)-(b.rollNo||0));
-  const data = students.map(s => ({
-    'Roll No': s.rollNo||'',
-    'Name': s.name,
-    'Surname': s.surname||'',
-    'Std': `Std ${s.std||''}`,
-    'Division': s.division||'',
-    'Batch': getBatchNameById(s.batchId),
-    'Phone': s.phone||'',
-    'Email': s.email||''
-  }));
-  exportToExcel(data, 'Students_List');
-});
-
-// =====================================================================
-// FEES MODULE
-// =====================================================================
-function updateFeesTable() {
-  const batchId   = feeBatchFilter.value;
-  const std       = feeStdFilter.value;
-  const div       = feeDivFilter.value;
-  const statusF   = feeStatusFilter.value;
-  let students = getUsers().filter(u => u.role==='student');
-  if (batchId) students = students.filter(u => u.batchId === batchId);
-  if (std)     students = students.filter(u => String(u.std)===String(std));
-  if (div)     students = students.filter(u => u.division === div);
-  const fees = getFees();
-  // Build rows: every filtered student appears (with their fee record or default "Pending")
+function renderFeesTable() {
+  const batchId = document.getElementById('fee-batch-filter').value;
+  const std     = document.getElementById('fee-std-filter').value;
+  const div     = document.getElementById('fee-div-filter').value;
+  const statusF = document.getElementById('fee-status-filter').value;
+  let students = allStudents;
+  if (batchId) students = students.filter(s=>s.batch_id===batchId);
+  if (std)     students = students.filter(s=>String(s.std)===String(std));
+  if (div)     students = students.filter(s=>s.division===div);
   const rows = students.map(s => {
-    const feeRec = fees.find(f => f.studentId === s.id) || { amount: 0, status: 'Pending' };
-    return { student: s, fee: feeRec };
-  }).filter(r => !statusF || r.fee.status === statusF);
-  feesCount.textContent = `Showing ${rows.length} record${rows.length!==1?'s':''}`;
-  feesListBody.innerHTML = '';
-  rows.forEach(({student:s, fee}) => {
+    const fee = allFees.find(f=>f.student_id===s.id)||{amount:0,status:'Pending'};
+    return {student:s, fee};
+  }).filter(r=>!statusF||r.fee.status===statusF);
+  document.getElementById('fees-count').textContent = `Showing ${rows.length} record${rows.length!==1?'s':''}`;
+  const tbody = document.getElementById('fees-list-body');
+  tbody.innerHTML = '';
+  rows.forEach(({student:s,fee}) => {
     const tr = document.createElement('tr');
     tr.className = 'hover:bg-indigo-100';
-    tr.innerHTML = `
-      <td class="py-2 px-4">${s.rollNo||''}</td>
-      <td class="py-2 px-4">${s.name}</td>
-      <td class="py-2 px-4">${s.surname||''}</td>
-      <td class="py-2 px-4">Std ${s.std||''}</td>
-      <td class="py-2 px-4">${s.division||''}</td>
-      <td class="py-2 px-4">${getBatchNameById(s.batchId)}</td>
-      <td class="py-2 px-4">₹${fee.amount||0}</td>
-      <td class="py-2 px-4"><span class="px-2 py-1 rounded-full text-sm font-semibold ${fee.status==='Paid'?'bg-green-100 text-green-700':'bg-red-100 text-red-700'}">${fee.status}</span></td>`;
-    feesListBody.appendChild(tr);
+    tr.innerHTML = `<td class="py-2 px-4">${s.roll_no||''}</td><td class="py-2 px-4">${s.name}</td><td class="py-2 px-4">${s.surname||''}</td><td class="py-2 px-4">Std ${s.std||''}</td><td class="py-2 px-4">${s.division||''}</td><td class="py-2 px-4">${getBatchName(s.batch_id)}</td><td class="py-2 px-4">₹${fee.amount||0}</td><td class="py-2 px-4"><span class="px-2 py-1 rounded-full text-sm font-semibold ${fee.status==='Paid'?'bg-green-100 text-green-700':'bg-red-100 text-red-700'}">${fee.status}</span></td>`;
+    tbody.appendChild(tr);
   });
-}
-
-feeSaveBtn.addEventListener('click', () => {
-  const sid    = feeStudentSelect.value;
-  const amount = parseFloat(feeAmount.value) || 0;
-  const status = feeStatusSet.value;
-  if (!sid) { showToast('Please select a student.', 'error'); return; }
-  let fees = getFees();
-  const idx = fees.findIndex(f => f.studentId === sid);
-  if (idx !== -1) { fees[idx].amount = amount; fees[idx].status = status; }
-  else { fees.push({ studentId: sid, amount, status }); }
-  setFees(fees);
-  showToast('Fee record saved.', 'success');
-  updateFeesTable();
-});
-
-feesExportBtn.addEventListener('click', () => {
-  const batchId = feeBatchFilter.value;
-  const std     = feeStdFilter.value;
-  const div     = feeDivFilter.value;
-  const statusF = feeStatusFilter.value;
-  let students = getUsers().filter(u => u.role==='student');
-  if (batchId) students = students.filter(u => u.batchId === batchId);
-  if (std)     students = students.filter(u => String(u.std)===String(std));
-  if (div)     students = students.filter(u => u.division === div);
-  const fees = getFees();
-  const rows = students.map(s => {
-    const fee = fees.find(f => f.studentId===s.id) || { amount:0, status:'Pending' };
-    return { student:s, fee };
-  }).filter(r => !statusF || r.fee.status===statusF);
-  const data = rows.map(({student:s, fee}) => ({
-    'Roll No': s.rollNo||'',
-    'Name': s.name,
-    'Surname': s.surname||'',
-    'Std': `Std ${s.std||''}`,
-    'Division': s.division||'',
-    'Batch': getBatchNameById(s.batchId),
-    'Fee Amount (₹)': fee.amount||0,
-    'Status': fee.status
-  }));
-  exportToExcel(data, 'Fees_Records');
-});
-
-// Fee filters
-feeBatchFilter.addEventListener('change', () => { populateFeeStudentSelect(); updateFeesTable(); });
-feeStdFilter.addEventListener('change',   () => { populateFeeStudentSelect(); updateFeesTable(); });
-feeDivFilter.addEventListener('change',   () => { populateFeeStudentSelect(); updateFeesTable(); });
-feeStatusFilter.addEventListener('change',() => { updateFeesTable(); });
-
-// =====================================================================
-// EXCEL EXPORT UTILITY (SheetJS)
-// =====================================================================
-function exportToExcel(data, filename) {
-  if (!data || !data.length) { showToast('No data to export.', 'warning'); return; }
-  const ws = XLSX.utils.json_to_sheet(data);
-  const wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
-  XLSX.writeFile(wb, `${filename}_${new Date().toISOString().slice(0,10)}.xlsx`);
-  showToast('Excel file downloaded!', 'success');
 }
 
 // =====================================================================
-// STUDENT SECTION UPDATES
+// ACTIONS
 // =====================================================================
-function updateStudentAttendance() {
-  if (!currentUser) return;
-  const selBatch = studentFilterBatchSelect.value;
-  const selMonth = studentFilterMonthInput.value;
-  const selDate  = studentFilterDateInput.value;
-  let records = getAttendance().filter(a => a.studentId === currentUser.id);
-  if (selBatch) records = records.filter(r => r.batchId === selBatch);
-  if (selMonth) records = records.filter(r => r.date.startsWith(selMonth));
-  if (selDate)  records = records.filter(r => r.date === selDate);
-  studentAttendanceRecords.innerHTML = '';
-  records.forEach(rec => {
-    const {date,day} = formatDateAndDay(rec.date);
-    const tr = document.createElement('tr');
-    tr.className = 'hover:bg-indigo-100';
-    tr.innerHTML = `<td class="py-2 px-4">${date}</td><td class="py-2 px-4">${day}</td><td class="py-2 px-4 font-semibold ${rec.status==='Present'?'text-green-600':'text-red-600'}">${rec.status}</td><td class="py-2 px-4">${getBatchNameById(rec.batchId)}</td>`;
-    studentAttendanceRecords.appendChild(tr);
-  });
-}
-function updateStudentExamSchedule() {
-  if (!currentUser) return;
-  const batchId = getStudentBatchId(currentUser.id);
-  studentExamScheduleTbody.innerHTML = '';
-  getExams().filter(e => e.batchId === batchId).forEach(exam => {
-    const {date} = formatDateAndDay(exam.date);
-    const tr = document.createElement('tr');
-    tr.className = 'hover:bg-indigo-100';
-    tr.innerHTML = `<td class="py-2 px-4">${exam.name}</td><td class="py-2 px-4">${date}</td><td class="py-2 px-4">${convertTo12Hour(exam.time)}</td>`;
-    studentExamScheduleTbody.appendChild(tr);
-  });
-}
-function updateStudentResultsList() {
-  if (!currentUser) return;
-  const results = getResults().filter(r => r.studentId === currentUser.id);
-  studentResultsList.innerHTML = '';
-  studentResultsDetails.classList.add('hidden');
-  if (!results.length) { studentResultsList.innerHTML = '<p class="text-gray-600">No results available.</p>'; return; }
-  const grouped = {};
-  results.forEach(r => {
-    const key = `${r.title}||${r.resultDate}`;
-    if (!grouped[key]) grouped[key] = [];
-    grouped[key].push(r);
-  });
-  Object.entries(grouped).forEach(([key, arr]) => {
-    const [title, resultDate] = key.split('||');
-    const dateFmt = formatDateAndDay(resultDate).date;
-    const card = document.createElement('div');
-    card.className = 'bg-indigo-50 rounded-md shadow-md p-4 cursor-pointer hover:bg-indigo-100 transition';
-    card.setAttribute('tabindex','0');
-    card.innerHTML = `<h5 class="text-lg font-semibold text-indigo-700">${title} (${dateFmt})</h5>`;
-    const show = () => {
-      resultDetailsTitle.textContent = `${title} (${dateFmt})`;
-      resultDetailsTbody.innerHTML = arr.map(r=>`<tr class="hover:bg-indigo-100"><td class="py-2 px-4">${r.subject}</td><td class="py-2 px-4">${r.marksObtained}</td><td class="py-2 px-4">${r.totalMarks}</td></tr>`).join('');
-      studentResultsDetails.classList.remove('hidden');
-      studentResultsDetails.scrollIntoView({behavior:'smooth'});
-    };
-    card.onclick = show;
-    card.onkeypress = e => { if (e.key==='Enter'||e.key===' ') { e.preventDefault(); show(); } };
-    studentResultsList.appendChild(card);
-  });
+async function deleteBatch(id) {
+  if (!confirm('Delete this batch?')) return;
+  const res = await api('DELETE',`/api/batches/${id}`);
+  if (res.success) {
+    allBatches = allBatches.filter(b=>b.id!==id);
+    allStudents = allStudents.map(s=>s.batch_id===id?{...s,batch_id:null}:s);
+    allAttendance = allAttendance.filter(a=>a.batch_id!==id);
+    allExams = allExams.filter(e=>e.batch_id!==id);
+    populateAllBatchDropdowns();
+    renderBatchesList();
+    renderStudentsTable();
+    renderAttendanceTable();
+    showToast('Batch deleted.','success');
+  } else showToast(res.message||'Error','error');
 }
 
-function populateStudentFilterBatches() {
-  const batches = getBatches();
-  studentFilterBatchSelect.innerHTML = '<option value="">All Batches</option>';
-  batches.forEach(b => {
-    const o = document.createElement('option');
-    o.value = b.id; o.textContent = b.name;
-    studentFilterBatchSelect.appendChild(o);
-  });
+function editStudent(sid) {
+  const s = allStudents.find(x=>x.id===sid);
+  if (!s) return;
+  document.getElementById('student-name').value    = s.name;
+  document.getElementById('student-surname').value = s.surname||'';
+  document.getElementById('student-email').value   = s.email||'';
+  document.getElementById('student-phone').value   = s.phone||'';
+  document.getElementById('student-username').value= s.username;
+  document.getElementById('student-password').value= s.password;
+  document.getElementById('student-std').value     = s.std||'';
+  document.getElementById('student-division').value= s.division||'';
+  document.getElementById('student-rollno-display').value = s.roll_no||'';
+  populateBatchDropdown(document.getElementById('student-batch'), false, s.batch_id);
+  document.getElementById('add-student-form').dataset.editingId = sid;
+  document.getElementById('add-student-form').querySelector('button[type="submit"]').textContent='Update Student';
+  window.scrollTo({top:0,behavior:'smooth'});
+}
+
+async function deleteStudent(sid) {
+  if (!confirm('Delete this student?')) return;
+  const res = await api('DELETE',`/api/students/${sid}`);
+  if (res.success) {
+    allStudents   = allStudents.filter(s=>s.id!==sid);
+    allAttendance = allAttendance.filter(a=>a.student_id!==sid);
+    allResults    = allResults.filter(r=>r.student_id!==sid);
+    allFees       = allFees.filter(f=>f.student_id!==sid);
+    populateAllStdDropdowns();
+    renderStudentsTable();
+    renderAttendanceTable();
+    renderResultsCards();
+    showToast('Student deleted.','success');
+  } else showToast(res.message||'Error','error');
+}
+
+async function deleteResultSet(sid, title, resultDate) {
+  if (!confirm(`Delete result "${title}"?`)) return;
+  const res = await api('DELETE','/api/results',{student_id:sid,title,result_date:resultDate});
+  if (res.success) {
+    allResults = allResults.filter(r=>!(r.student_id===sid&&r.title===title&&(r.result_date===resultDate||r.result_date&&r.result_date.startsWith(resultDate))));
+    renderResultsCards();
+    showToast('Result deleted.','success');
+  } else showToast(res.message||'Error','error');
 }
 
 // =====================================================================
 // FORM SUBMISSIONS
 // =====================================================================
 
-// -- Batch form --
-batchForm.addEventListener('submit', e => {
+// LOGIN
+document.getElementById('login-form').addEventListener('submit', async e => {
   e.preventDefault();
-  const name = batchNameInput.value.trim();
-  if (!name) { showToast('Enter a batch year.','error'); return; }
-  const batches = getBatches();
-  if (batches.some(b => b.name.toLowerCase()===name.toLowerCase())) { showToast('Batch already exists.','error'); return; }
-  batches.push({ id: `batch-${Date.now()}`, name });
-  setBatches(batches);
-  showToast('Batch added.','success');
-  batchForm.reset();
-  populateAllBatchDropdowns();
-  updateBatchesList();
+  const role     = document.getElementById('role').value;
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const btn      = document.getElementById('login-btn');
+  btn.innerHTML  = '<span class="spinner"></span>';
+  btn.disabled   = true;
+  const res = await api('POST','/api/login',{username,password,role}).catch(()=>({success:false,message:'Server error'}));
+  btn.textContent = 'Login';
+  btn.disabled    = false;
+  if (!res.success) { showToast(res.message||'Invalid credentials','error'); return; }
+  currentUser = res.user;
+  sessionStorage.setItem('school_user', JSON.stringify(currentUser));
+  await loadAllData();
+  document.getElementById('login-screen').classList.add('hidden');
+  if (role==='admin') initAdminDashboard();
+  else initStudentDashboard();
+  document.getElementById('login-form').reset();
 });
 
-// -- Add Student form --
-// Auto update roll no preview when batch/std/division changes
-function updateRollNoPreview() {
-  const batchId  = studentBatchSelect.value;
-  const std      = studentStdSelect.value;
-  const division = studentDivSelect.value;
-  const editingId = addStudentForm.dataset.editingId;
-  if (batchId && std && division && !editingId) {
-    const next = generateRollNo(batchId, std, division, null);
-    studentRollNoDisplay.value = next;
-  } else if (!editingId) {
-    studentRollNoDisplay.value = '';
+// BATCH FORM
+document.getElementById('batch-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const name = document.getElementById('batch-name').value.trim();
+  if (!name) { showToast('Enter a batch year.','error'); return; }
+  const res = await api('POST','/api/batches',{id:`batch-${Date.now()}`,name});
+  if (res.success) {
+    allBatches.push(res.batch);
+    populateAllBatchDropdowns();
+    renderBatchesList();
+    document.getElementById('batch-form').reset();
+    showToast('Batch added.','success');
+  } else showToast(res.message||'Error','error');
+});
+
+// ADD STUDENT
+const addStudentForm = document.getElementById('add-student-form');
+async function updateRollNoPreview() {
+  const batchId  = document.getElementById('student-batch').value;
+  const std      = document.getElementById('student-std').value;
+  const division = document.getElementById('student-division').value;
+  const editing  = addStudentForm.dataset.editingId;
+  if (batchId&&std&&division&&!editing) {
+    const res = await api('GET',`/api/students/rollno?batch_id=${batchId}&std=${std}&division=${division}`);
+    document.getElementById('student-rollno-display').value = res.success ? res.roll_no : '';
+  } else if (!editing) {
+    document.getElementById('student-rollno-display').value = '';
   }
 }
-studentBatchSelect.addEventListener('change',  updateRollNoPreview);
-studentStdSelect.addEventListener('change',    updateRollNoPreview);
-studentDivSelect.addEventListener('change',    updateRollNoPreview);
+document.getElementById('student-batch').addEventListener('change', updateRollNoPreview);
+document.getElementById('student-std').addEventListener('change', updateRollNoPreview);
+document.getElementById('student-division').addEventListener('change', updateRollNoPreview);
 
-addStudentForm.addEventListener('submit', e => {
+addStudentForm.addEventListener('submit', async e => {
   e.preventDefault();
-  const name     = studentNameInput.value.trim();
-  const surname  = studentSurnameInput.value.trim();
-  const email    = studentEmailInput.value.trim();
-  const phone    = studentPhoneInput.value.trim();
-  const username = studentUsernameInput.value.trim();
-  const password = studentPasswordInput.value;
-  const batchId  = studentBatchSelect.value;
-  const std      = studentStdSelect.value;
-  const division = studentDivSelect.value;
-  if (!name || !surname || !phone || !username || !password || !batchId || !std || !division) {
-    showToast('Please fill all required fields.','error'); return;
-  }
-  const users = getUsers();
+  const name     = document.getElementById('student-name').value.trim();
+  const surname  = document.getElementById('student-surname').value.trim();
+  const email    = document.getElementById('student-email').value.trim();
+  const phone    = document.getElementById('student-phone').value.trim();
+  const username = document.getElementById('student-username').value.trim();
+  const password = document.getElementById('student-password').value;
+  const batch_id = document.getElementById('student-batch').value;
+  const std      = document.getElementById('student-std').value;
+  const division = document.getElementById('student-division').value;
+  if (!name||!surname||!phone||!username||!password||!batch_id||!std||!division) { showToast('Fill all required fields.','error'); return; }
   const editingId = addStudentForm.dataset.editingId;
-  if (users.some(u => u.username.toLowerCase()===username.toLowerCase() && u.id!==editingId)) {
-    showToast('Username already exists.','error'); return;
-  }
   if (editingId) {
-    const idx = users.findIndex(u => u.id===editingId);
-    if (idx!==-1) {
-      users[idx] = { ...users[idx], name, surname, email, phone, username, password, batchId, std, division };
-      setUsers(users);
+    const res = await api('PUT',`/api/students/${editingId}`,{name,surname,email,phone,username,password,batch_id,std,division});
+    if (res.success) {
+      const idx = allStudents.findIndex(s=>s.id===editingId);
+      if (idx!==-1) allStudents[idx] = res.student;
+      delete addStudentForm.dataset.editingId;
+      addStudentForm.querySelector('button[type="submit"]').textContent='Add Student';
       showToast('Student updated.','success');
-    }
-    delete addStudentForm.dataset.editingId;
-    addStudentForm.querySelector('button[type="submit"]').textContent = 'Add Student';
+    } else { showToast(res.message||'Error','error'); return; }
   } else {
-    const rollNo = generateRollNo(batchId, std, division, null);
-    const newStudent = { id:`student-${Date.now()}`, name, surname, email, phone, username, password, role:'student', batchId, std, division, rollNo };
-    users.push(newStudent);
-    setUsers(users);
-    showToast(`Student added! Roll No: ${rollNo}`,'success');
-    if (email) {
-      fetch('/send-new-student-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:email,subject:'Welcome to School',text:`Dear ${name},\n\nYou have been added.\nBatch: ${getBatchNameById(batchId)} | Std: ${std} | Division: ${division} | Roll No: ${rollNo}\nUsername: ${username}\nPassword: ${password}\n\nRegards,\nSchool Administration`})}).catch(()=>{});
-    }
+    const rollRes = await api('GET',`/api/students/rollno?batch_id=${batch_id}&std=${std}&division=${division}`);
+    const roll_no = rollRes.success ? rollRes.roll_no : 1;
+    const res = await api('POST','/api/students',{id:`student-${Date.now()}`,name,surname,email,phone,username,password,batch_id,std,division,roll_no});
+    if (res.success) {
+      allStudents.push(res.student);
+      showToast(`Student added! Roll No: ${roll_no}`,'success');
+    } else { showToast(res.message||'Error','error'); return; }
   }
   addStudentForm.reset();
-  studentRollNoDisplay.value = '';
+  document.getElementById('student-rollno-display').value='';
   populateAllBatchDropdowns();
   populateAllStdDropdowns();
-  updateStudentsListTable();
-  populateResultStudentSelect();
   populateAttendanceStudentSelect();
+  populateResultStudentSelect();
+  renderStudentsTable();
 });
+document.getElementById('clear-student-name').addEventListener('click', () => { document.getElementById('student-name').value=''; document.getElementById('student-name').focus(); });
 
-clearStudentNameBtn.addEventListener('click', () => { studentNameInput.value=''; studentNameInput.focus(); });
-
-// -- Attendance form --
-attFilterBatch.addEventListener('change', () => { populateAttendanceStudentSelect(); });
-attFilterStd.addEventListener('change',   () => { populateAttendanceStudentSelect(); });
-attendanceStudentSelect.addEventListener('change', () => {
-  const s = getStudentById(attendanceStudentSelect.value);
-  attendanceStudentPhone.textContent = s && s.phone ? `Phone: ${s.phone}` : '';
+// ATTENDANCE FORM
+document.getElementById('att-filter-batch').addEventListener('change', populateAttendanceStudentSelect);
+document.getElementById('att-filter-std').addEventListener('change', populateAttendanceStudentSelect);
+document.getElementById('attendance-student-select').addEventListener('change', () => {
+  const s = getStudentById(document.getElementById('attendance-student-select').value);
+  document.getElementById('attendance-student-phone').textContent = s&&s.phone?`Phone: ${s.phone}`:'';
 });
-attendanceForm.addEventListener('submit', e => {
+document.getElementById('attendance-form').addEventListener('submit', async e => {
   e.preventDefault();
-  const studentId = attendanceStudentSelect.value;
-  const date      = document.getElementById('attendance-date').value;
-  const status    = attendanceForm['attendance-status'].value;
-  if (!studentId || !date || !status) { showToast('Fill all attendance fields.','error'); return; }
-  const s = getStudentById(studentId);
-  const batchId = s ? s.batchId : '';
-  const att = getAttendance();
-  att.push({ studentId, batchId, date, status });
-  setAttendance(att);
-  showToast('Attendance marked.','success');
-  const email = getStudentEmailById(studentId);
-  if (email) {
-    const dateStr = formatDateAndDay(date).date;
-    fetch('/send-attendance-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:email,subject:'Attendance Notification',text:`Dear Student,\n\nYour attendance was marked as "${status}" on ${dateStr}.\n\nRegards,\nSchool Administration`})}).catch(()=>{});
-  }
-  attendanceForm.reset();
-  updateAttendanceRecordsTable();
+  const student_id = document.getElementById('attendance-student-select').value;
+  const date       = document.getElementById('attendance-date').value;
+  const status     = document.getElementById('attendance-form')['attendance-status'].value;
+  if (!student_id||!date||!status) { showToast('Fill all fields.','error'); return; }
+  const s = getStudentById(student_id);
+  const batch_id = s ? s.batch_id : '';
+  const res = await api('POST','/api/attendance',{id:`att-${Date.now()}`,student_id,batch_id,date,status});
+  if (res.success) {
+    allAttendance.push(res.record);
+    showToast('Attendance marked.','success');
+    document.getElementById('attendance-form').reset();
+    document.getElementById('attendance-student-phone').textContent='';
+    renderAttendanceTable();
+  } else showToast(res.message||'Error','error');
+});
+document.getElementById('filter-batch').addEventListener('change', () => { populateFilterStudentDropdown(); renderAttendanceTable(); });
+document.getElementById('filter-student').addEventListener('change', renderAttendanceTable);
+document.getElementById('filter-month').addEventListener('change', () => { if(document.getElementById('filter-month').value) document.getElementById('filter-date').value=''; renderAttendanceTable(); });
+document.getElementById('filter-date').addEventListener('change', () => { if(document.getElementById('filter-date').value) document.getElementById('filter-month').value=''; renderAttendanceTable(); });
+
+// EXAM SCHEDULE FORM
+document.getElementById('exam-schedule-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const name     = document.getElementById('exam-name').value.trim();
+  const batch_id = document.getElementById('exam-batch').value;
+  const date     = document.getElementById('exam-date').value;
+  const time     = document.getElementById('exam-time').value;
+  if (!name||!batch_id||!date||!time) { showToast('Fill all fields.','error'); return; }
+  const res = await api('POST','/api/exams',{id:`exam-${Date.now()}`,name,batch_id,date,time});
+  if (res.success) {
+    allExams.push(res.exam);
+    document.getElementById('exam-schedule-form').reset();
+    renderExamTable();
+    showToast('Exam added.','success');
+  } else showToast(res.message||'Error','error');
 });
 
-// attendance records filters
-filterBatchSelect.addEventListener('change',  () => { populateFilterStudentDropdown(); updateAttendanceRecordsTable(); });
-filterStudentSelect.addEventListener('change',() => updateAttendanceRecordsTable());
-filterMonthInput.addEventListener('change',   () => { if(filterMonthInput.value) filterDateInput.value=''; updateAttendanceRecordsTable(); });
-filterDateInput.addEventListener('change',    () => { if(filterDateInput.value) filterMonthInput.value=''; updateAttendanceRecordsTable(); });
-
-// -- Exam schedule form --
-examScheduleForm.addEventListener('submit', e => {
+// RESULT FORM
+document.getElementById('result-batch-filter').addEventListener('change', populateResultStudentSelect);
+document.getElementById('result-std-filter').addEventListener('change', populateResultStudentSelect);
+document.getElementById('result-form').addEventListener('submit', async e => {
   e.preventDefault();
-  const name    = document.getElementById('exam-name').value.trim();
-  const batchId = examBatchSelect.value;
-  const date    = document.getElementById('exam-date').value;
-  const time    = examTimeInput.value;
-  if (!name||!batchId||!date||!time) { showToast('Fill all exam fields.','error'); return; }
-  const exams = getExams();
-  exams.push({ id:`exam-${Date.now()}`, name, batchId, date, time });
-  setExams(exams);
-  showToast('Exam added.','success');
-  const batchStudents = getUsers().filter(u=>u.role==='student'&&u.batchId===batchId&&u.email);
-  if (batchStudents.length) {
-    const dateStr = formatDateAndDay(date).date;
-    const time12 = convertTo12Hour(time);
-    Promise.all(batchStudents.map(s=>fetch('/send-exam-schedule-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:s.email,subject:'New Exam Schedule',text:`Exam: ${name}\nDate: ${dateStr}\nTime: ${time12}\n\nRegards,\nSchool Administration`})}).then(r=>r.json()))).then(results=>{
-      if(!results.every(r=>r.success)) showToast('Exam added, some emails failed.','warning');
-    }).catch(()=>{});
-  }
-  examScheduleForm.reset();
-  updateExamScheduleTable();
-});
-
-// -- Result form --
-resultBatchFilter.addEventListener('change', () => { populateResultStudentSelect(); });
-resultStdFilter.addEventListener('change',   () => { populateResultStudentSelect(); });
-
-resultForm.addEventListener('submit', e => {
-  e.preventDefault();
-  const studentId = resultStudentSelect.value;
-  const title     = resultTitleInput.value.trim();
-  const resultDate= resultDateInput.value;
-  if (!studentId) { showToast('Select a student.','error'); return; }
-  if (!title)     { showToast('Enter a result title.','error'); return; }
-  if (!resultDate){ showToast('Enter a result date.','error'); return; }
-  const rows = subjectsContainer.querySelectorAll('.subject-row');
-  if (!rows.length){ showToast('Add at least one subject.','error'); return; }
+  const student_id  = document.getElementById('result-student-select').value;
+  const title       = document.getElementById('result-title').value.trim();
+  const result_date = document.getElementById('result-date').value;
+  if (!student_id) { showToast('Select a student.','error'); return; }
+  if (!title)      { showToast('Enter a title.','error'); return; }
+  if (!result_date){ showToast('Enter a date.','error'); return; }
+  const rows = document.getElementById('subjects-container').querySelectorAll('.subject-row');
+  const subjects = [];
   let valid = true;
-  const results = getResults();
   rows.forEach(row => {
     const sub = row.querySelector('.subject-name').value.trim();
     const mo  = Number(row.querySelector('.marks-obtained').value);
     const tot = Number(row.querySelector('.total-marks').value);
-    if (!sub||isNaN(mo)||isNaN(tot)||tot<=0||mo>tot) { valid=false; }
-    else results.push({ studentId, subject:sub, marksObtained:mo, totalMarks:tot, title, resultDate, id:`res-${Date.now()}-${Math.random().toString(36).substr(2,9)}` });
+    if (!sub||isNaN(mo)||isNaN(tot)||tot<=0||mo>tot) { valid=false; return; }
+    subjects.push({id:`res-${Date.now()}-${Math.random().toString(36).substr(2,9)}`,subject:sub,marks_obtained:mo,total_marks:tot});
   });
-  if (!valid) { showToast('Check subject fields — marks cannot exceed total.','error'); return; }
-  setResults(results);
-  showToast('Results uploaded.','success');
-  const email = getStudentEmailById(studentId);
-  if (email) fetch('/send-result-upload-email',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({to:email,subject:'New Result Uploaded',text:`Dear Student,\n\nResult "${title}" has been uploaded.\n\nRegards,\nSchool Administration`})}).catch(()=>{});
-  resultForm.reset();
-  resultStudentSelect.value='';
-  while(subjectsContainer.children.length>1) subjectsContainer.removeChild(subjectsContainer.lastChild);
-  const fr = subjectsContainer.querySelector('.subject-row');
-  fr.querySelector('.subject-name').value='';
-  fr.querySelector('.marks-obtained').value='';
-  fr.querySelector('.total-marks').value='';
-  updateResultsStudentCards();
+  if (!valid) { showToast('Check subject fields.','error'); return; }
+  const res = await api('POST','/api/results',{student_id,title,result_date,subjects});
+  if (res.success) {
+    allResults.push(...res.results);
+    showToast('Results uploaded.','success');
+    document.getElementById('result-form').reset();
+    const container = document.getElementById('subjects-container');
+    while(container.children.length>1) container.removeChild(container.lastChild);
+    const fr = container.querySelector('.subject-row');
+    fr.querySelector('.subject-name').value='';
+    fr.querySelector('.marks-obtained').value='';
+    fr.querySelector('.total-marks').value='';
+    renderResultsCards();
+  } else showToast(res.message||'Error','error');
 });
-
-addSubjectBtn.addEventListener('click', () => {
+document.getElementById('add-subject-btn').addEventListener('click', () => {
   const row = document.createElement('div');
-  row.className = 'subject-row grid grid-cols-12 gap-2 items-center';
-  row.innerHTML = `<div class="col-span-5"><label class="block font-medium text-indigo-800 mb-1">Subject Name</label><input type="text" class="subject-name w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required /></div>
-    <div class="col-span-3"><label class="block font-medium text-indigo-800 mb-1">Marks Obtained</label><input type="number" min="0" class="marks-obtained w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required /></div>
-    <div class="col-span-3"><label class="block font-medium text-indigo-800 mb-1">Total Marks</label><input type="number" min="1" class="total-marks w-full border border-indigo-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" required /></div>
+  row.className='subject-row grid grid-cols-12 gap-2 items-center';
+  row.innerHTML=`<div class="col-span-5"><label class="block font-medium text-indigo-800 mb-1">Subject</label><input type="text" class="subject-name w-full border border-indigo-300 rounded-md px-3 py-2" required /></div>
+    <div class="col-span-3"><label class="block font-medium text-indigo-800 mb-1">Marks</label><input type="number" min="0" class="marks-obtained w-full border border-indigo-300 rounded-md px-3 py-2" required /></div>
+    <div class="col-span-3"><label class="block font-medium text-indigo-800 mb-1">Total</label><input type="number" min="1" class="total-marks w-full border border-indigo-300 rounded-md px-3 py-2" required /></div>
     <div class="col-span-1 flex items-end"><button type="button" class="remove-subject-btn bg-red-600 hover:bg-red-700 text-white px-3 py-1 rounded-md"><i class="fas fa-trash-alt"></i></button></div>`;
-  subjectsContainer.appendChild(row);
+  document.getElementById('subjects-container').appendChild(row);
   attachRemoveSubjectListeners();
 });
 function attachRemoveSubjectListeners() {
-  subjectsContainer.querySelectorAll('.remove-subject-btn').forEach(btn => {
-    btn.onclick = e => {
-      if (subjectsContainer.children.length===1) { showToast('At least one subject required.','error'); return; }
-      e.target.closest('.subject-row').remove();
-    };
+  document.querySelectorAll('.remove-subject-btn').forEach(btn => btn.onclick = e => {
+    const c = document.getElementById('subjects-container');
+    if (c.children.length===1) { showToast('At least one subject required.','error'); return; }
+    e.target.closest('.subject-row').remove();
   });
 }
 attachRemoveSubjectListeners();
 
-// =====================================================================
-// NAVIGATION
-// =====================================================================
+// FEES
+document.getElementById('fee-batch-filter').addEventListener('change', () => { populateFeeStudentSelect(); renderFeesTable(); });
+document.getElementById('fee-std-filter').addEventListener('change', () => { populateFeeStudentSelect(); renderFeesTable(); });
+document.getElementById('fee-div-filter').addEventListener('change', () => { populateFeeStudentSelect(); renderFeesTable(); });
+document.getElementById('fee-status-filter').addEventListener('change', renderFeesTable);
+document.getElementById('fee-save-btn').addEventListener('click', async () => {
+  const student_id = document.getElementById('fee-student-select').value;
+  const amount     = parseFloat(document.getElementById('fee-amount').value)||0;
+  const status     = document.getElementById('fee-status-set').value;
+  if (!student_id) { showToast('Select a student.','error'); return; }
+  const res = await api('POST','/api/fees',{student_id,amount,status});
+  if (res.success) {
+    const idx = allFees.findIndex(f=>f.student_id===student_id);
+    if (idx!==-1) allFees[idx]=res.fee;
+    else allFees.push(res.fee);
+    renderFeesTable();
+    showToast('Fee saved.','success');
+  } else showToast(res.message||'Error','error');
+});
+document.getElementById('fees-export-btn').addEventListener('click', () => {
+  const batchId=document.getElementById('fee-batch-filter').value, std=document.getElementById('fee-std-filter').value, div=document.getElementById('fee-div-filter').value, statusF=document.getElementById('fee-status-filter').value;
+  let students=allStudents;
+  if(batchId) students=students.filter(s=>s.batch_id===batchId);
+  if(std) students=students.filter(s=>String(s.std)===String(std));
+  if(div) students=students.filter(s=>s.division===div);
+  const rows=students.map(s=>({student:s,fee:allFees.find(f=>f.student_id===s.id)||{amount:0,status:'Pending'}})).filter(r=>!statusF||r.fee.status===statusF);
+  exportToExcel(rows.map(({student:s,fee})=>({'Roll No':s.roll_no||'','Name':s.name,'Surname':s.surname||'','Std':`Std ${s.std||''}`,'Division':s.division||'','Batch':getBatchName(s.batch_id),'Fee Amount (₹)':fee.amount||0,'Status':fee.status})),'Fees_Records');
+});
+document.getElementById('sl-filter-batch').addEventListener('change', renderStudentListModule);
+document.getElementById('sl-filter-std').addEventListener('change', renderStudentListModule);
+document.getElementById('sl-filter-div').addEventListener('change', renderStudentListModule);
+document.getElementById('sl-export-btn').addEventListener('click', () => {
+  const batchId=document.getElementById('sl-filter-batch').value, std=document.getElementById('sl-filter-std').value, div=document.getElementById('sl-filter-div').value;
+  let students=[...allStudents];
+  if(batchId) students=students.filter(s=>s.batch_id===batchId);
+  if(std) students=students.filter(s=>String(s.std)===String(std));
+  if(div) students=students.filter(s=>s.division===div);
+  students.sort((a,b)=>(a.roll_no||0)-(b.roll_no||0));
+  exportToExcel(students.map(s=>({'Roll No':s.roll_no||'','Name':s.name,'Surname':s.surname||'','Std':`Std ${s.std||''}`,'Division':s.division||'','Batch':getBatchName(s.batch_id),'Phone':s.phone||'','Email':s.email||''})),'Students_List');
+});
 
-// Admin nav sidebar buttons
-adminNavButtons.forEach(btn => {
+// ADMIN PROFILE FORM
+document.getElementById('admin-profile-form').addEventListener('submit', async e => {
+  e.preventDefault();
+  const name=document.getElementById('admin-name').value.trim(), email=document.getElementById('admin-email').value.trim(),
+    phone=document.getElementById('admin-phone').value.trim(), username=document.getElementById('admin-username-input').value.trim(),
+    newPass=document.getElementById('admin-password-input').value;
+  if (!name||!email||!phone||!username) { showToast('Fill all fields.','error'); return; }
+  const password = newPass.trim()||currentUser.password;
+  const res = await api('PUT',`/api/users/${currentUser.id}`,{...currentUser,name,email,phone,username,password});
+  if (res.success) {
+    currentUser=res.user; sessionStorage.setItem('school_user',JSON.stringify(currentUser));
+    document.getElementById('admin-username-display').textContent=currentUser.name;
+    showToast('Profile updated.','success');
+  } else showToast(res.message||'Error','error');
+});
+
+// ADMIN NAVIGATION
+document.querySelector('nav.w-64').querySelectorAll('button[data-section]').forEach(btn => {
   btn.addEventListener('click', () => {
-    adminNavButtons.forEach(b => b.classList.remove('bg-indigo-100'));
+    document.querySelector('nav.w-64').querySelectorAll('button[data-section]').forEach(b=>b.classList.remove('bg-indigo-100'));
     btn.classList.add('bg-indigo-100');
     const sec = btn.getAttribute('data-section');
-    if (sec === 'dashboard') {
-      showAdminSection('admin-dashboard-section');
-    } else if (sec === 'profile') {
+    if (sec==='dashboard') showAdminSection('admin-dashboard-section');
+    else if (sec==='profile') {
       showAdminSection('admin-profile-section');
-      adminNameInput.value    = currentUser.name || '';
-      adminEmailInput.value   = currentUser.email || '';
-      adminPhoneInput.value   = currentUser.phone || '';
-      adminUsernameInput.value= currentUser.username || '';
-      adminPasswordInput.value= '';
-      updateStudentLoginCredentialsList();
+      document.getElementById('admin-name').value=currentUser.name||'';
+      document.getElementById('admin-email').value=currentUser.email||'';
+      document.getElementById('admin-phone').value=currentUser.phone||'';
+      document.getElementById('admin-username-input').value=currentUser.username||'';
+      document.getElementById('admin-password-input').value='';
+      renderCredentialsList();
     }
   });
 });
+document.getElementById('admin-back-btn').addEventListener('click', () => showAdminSection('admin-dashboard-section'));
+document.getElementById('sidebar-toggle-btn').addEventListener('click', () => document.querySelector('nav.w-64').classList.toggle('open'));
+document.getElementById('admin-logout-btn').addEventListener('click', () => {
+  currentUser=null; sessionStorage.removeItem('school_user');
+  document.getElementById('admin-dashboard').classList.add('hidden');
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('login-form').reset();
+});
+document.getElementById('admin-profile-btn').addEventListener('click', () => {
+  document.querySelector('nav.w-64').querySelectorAll('button[data-section]').forEach(b=>b.getAttribute('data-section')==='profile'?b.classList.add('bg-indigo-100'):b.classList.remove('bg-indigo-100'));
+  showAdminSection('admin-profile-section');
+  document.getElementById('admin-name').value=currentUser.name||'';
+  document.getElementById('admin-email').value=currentUser.email||'';
+  document.getElementById('admin-phone').value=currentUser.phone||'';
+  document.getElementById('admin-username-input').value=currentUser.username||'';
+  document.getElementById('admin-password-input').value='';
+  renderCredentialsList();
+});
 
-// Dashboard card buttons
-openAttendanceBtn.addEventListener('click', () => {
+// DASHBOARD CARD BUTTONS
+document.getElementById('open-attendance-management').addEventListener('click', async () => {
   showAdminSection('attendance-management-section');
-  populateAllBatchDropdowns();
-  populateAllStdDropdowns();
-  populateAttendanceStudentSelect();
-  populateFilterStudentDropdown();
-  updateAttendanceRecordsTable();
+  await loadAllData();
+  populateAllBatchDropdowns(); populateAllStdDropdowns(); populateAttendanceStudentSelect(); populateFilterStudentDropdown(); renderAttendanceTable();
 });
-openExamScheduleBtn.addEventListener('click', () => {
+document.getElementById('open-exam-schedule').addEventListener('click', async () => {
   showAdminSection('exam-schedule-section');
-  populateAllBatchDropdowns();
-  updateExamScheduleTable();
+  await loadAllData();
+  populateAllBatchDropdowns(); renderExamTable();
 });
-openResultManagementBtn.addEventListener('click', () => {
+document.getElementById('open-result-management').addEventListener('click', async () => {
   showAdminSection('result-management-section');
-  populateAllBatchDropdowns();
-  populateAllStdDropdowns();
-  populateResultStudentSelect();
-  updateResultsStudentCards();
+  await loadAllData();
+  populateAllBatchDropdowns(); populateAllStdDropdowns(); populateResultStudentSelect(); renderResultsCards();
 });
-openBatchesManagementBtn.addEventListener('click', () => {
+document.getElementById('open-batches-management').addEventListener('click', async () => {
   showAdminSection('batches-management-section');
-  updateBatchesList();
+  await loadAllData();
+  renderBatchesList();
 });
-openAddStudentBtn.addEventListener('click', () => {
+document.getElementById('open-add-student').addEventListener('click', async () => {
   showAdminSection('add-student-section');
-  populateAllBatchDropdowns();
-  updateStudentsListTable();
-  addStudentForm.reset();
-  studentRollNoDisplay.value='';
+  await loadAllData();
+  populateAllBatchDropdowns(); populateAllStdDropdowns(); renderStudentsTable();
+  addStudentForm.reset(); document.getElementById('student-rollno-display').value='';
   delete addStudentForm.dataset.editingId;
-  addStudentForm.querySelector('button[type="submit"]').textContent = 'Add Student';
+  addStudentForm.querySelector('button[type="submit"]').textContent='Add Student';
 });
-openStudentListBtn.addEventListener('click', () => {
+document.getElementById('open-student-list').addEventListener('click', async () => {
   showAdminSection('student-list-section');
-  populateAllBatchDropdowns();
-  populateAllStdDropdowns();
-  updateStudentListModule();
+  await loadAllData();
+  populateAllBatchDropdowns(); populateAllStdDropdowns(); renderStudentListModule();
 });
-openFeesBtn.addEventListener('click', () => {
+document.getElementById('open-fees-management').addEventListener('click', async () => {
   showAdminSection('fees-section');
-  populateAllBatchDropdowns();
-  populateAllStdDropdowns();
-  populateFeeStudentSelect();
-  updateFeesTable();
-});
-
-// Student List module filters
-slFilterBatch.addEventListener('change', () => updateStudentListModule());
-slFilterStd.addEventListener('change',   () => updateStudentListModule());
-slFilterDiv.addEventListener('change',   () => updateStudentListModule());
-
-// Back button
-adminBackBtn.addEventListener('click', () => {
-  showAdminSection('admin-dashboard-section');
-  adminNavButtons.forEach(b => b.getAttribute('data-section')==='dashboard' ? b.classList.add('bg-indigo-100') : b.classList.remove('bg-indigo-100'));
-});
-
-// Sidebar toggle (admin mobile)
-sidebarToggleBtn.addEventListener('click', () => sidebarNav.classList.toggle('open'));
-
-// Admin profile form
-adminProfileForm.addEventListener('submit', e => {
-  e.preventDefault();
-  const name     = adminNameInput.value.trim();
-  const email    = adminEmailInput.value.trim();
-  const phone    = adminPhoneInput.value.trim();
-  const newUser  = adminUsernameInput.value.trim();
-  const newPass  = adminPasswordInput.value;
-  if (!name||!email||!phone||!newUser) { showToast('Fill all profile fields.','error'); return; }
-  const users = getUsers();
-  const idx = users.findIndex(u => u.id===currentUser.id);
-  if (idx===-1) { showToast('Admin not found.','error'); return; }
-  if (users.some((u,i)=>u.username.toLowerCase()===newUser.toLowerCase()&&i!==idx)) { showToast('Username exists.','error'); return; }
-  users[idx] = { ...users[idx], name, email, phone, username:newUser };
-  if (newPass.trim()) users[idx].password = newPass;
-  setUsers(users);
-  currentUser = users[idx];
-  setLoggedInUser(currentUser);
-  adminUsernameDisplay.textContent = currentUser.name;
-  showToast('Profile updated.','success');
-});
-
-// Toggle credentials
-toggleCredentialsBtn.addEventListener('click', () => {
-  const expanded = toggleCredentialsBtn.getAttribute('aria-expanded')==='true';
-  credentialsContainer.style.display = expanded ? 'none' : 'block';
-  toggleCredentialsBtn.setAttribute('aria-expanded', String(!expanded));
-  toggleCredentialsIcon.className = expanded ? 'fas fa-chevron-down' : 'fas fa-chevron-up';
-});
-
-// Admin logout
-adminLogoutBtn.addEventListener('click', () => {
-  clearLoggedInUser(); currentUser=null;
-  adminDashboard.classList.add('hidden');
-  loginScreen.classList.remove('hidden');
-  loginForm.reset();
-  if (sidebarNav.classList.contains('open')) sidebarNav.classList.remove('open');
+  await loadAllData();
+  populateAllBatchDropdowns(); populateAllStdDropdowns(); populateFeeStudentSelect(); renderFeesTable();
 });
 
 // =====================================================================
-// STUDENT DASHBOARD NAVIGATION
+// STUDENT DASHBOARD
 // =====================================================================
-studentNavButtons.forEach(btn => {
+function initStudentDashboard() {
+  document.getElementById('admin-dashboard').classList.add('hidden');
+  document.getElementById('student-dashboard').classList.remove('hidden');
+  document.getElementById('student-username-display').textContent = currentUser.name;
+  document.getElementById('student-name-display').textContent = currentUser.name;
+  showStudentSection('student-dashboard-section');
+  document.getElementById('student-sidebar').querySelectorAll('button[data-section]').forEach(b=>b.getAttribute('data-section')==='dashboard'?b.classList.add('bg-indigo-100'):b.classList.remove('bg-indigo-100'));
+}
+
+document.getElementById('student-sidebar').querySelectorAll('button[data-section]').forEach(btn => {
   btn.addEventListener('click', () => {
-    studentNavButtons.forEach(b => b.classList.remove('bg-indigo-100'));
+    document.getElementById('student-sidebar').querySelectorAll('button[data-section]').forEach(b=>b.classList.remove('bg-indigo-100'));
     btn.classList.add('bg-indigo-100');
     const sec = btn.getAttribute('data-section');
     if (sec==='dashboard') showStudentSection('student-dashboard-section');
     else if (sec==='profile') {
       showStudentSection('student-profile-section');
-      studentNameInputProfile.value    = currentUser.name||'';
-      studentEmailInputProfile.value   = currentUser.email||'';
-      studentPhoneInputProfile.value   = currentUser.phone||'';
-      studentUsernameInputProfile.value= currentUser.username||'';
-      studentPasswordInputProfile.value= '';
+      document.getElementById('sp-name').value=currentUser.name||'';
+      document.getElementById('sp-email').value=currentUser.email||'';
+      document.getElementById('sp-phone').value=currentUser.phone||'';
+      document.getElementById('sp-username').value=currentUser.username||'';
+      document.getElementById('sp-password').value='';
     }
   });
 });
-
-document.getElementById('student-open-attendance').addEventListener('click', () => { showStudentSection('student-attendance-section'); populateStudentFilterBatches(); updateStudentAttendance(); });
-document.getElementById('student-open-exam-schedule').addEventListener('click', () => { showStudentSection('student-exam-schedule-section'); updateStudentExamSchedule(); });
-document.getElementById('student-open-results').addEventListener('click', () => { showStudentSection('student-results-section'); updateStudentResultsList(); });
-
-studentBackBtn.addEventListener('click', () => {
+document.getElementById('student-back-btn').addEventListener('click', () => {
   showStudentSection('student-dashboard-section');
-  studentNavButtons.forEach(b => b.getAttribute('data-section')==='dashboard' ? b.classList.add('bg-indigo-100') : b.classList.remove('bg-indigo-100'));
+  document.getElementById('student-sidebar').querySelectorAll('button[data-section]').forEach(b=>b.getAttribute('data-section')==='dashboard'?b.classList.add('bg-indigo-100'):b.classList.remove('bg-indigo-100'));
 });
-studentSidebarToggleBtn.addEventListener('click', () => studentSidebar.classList.toggle('open'));
-studentLogoutBtn.addEventListener('click', () => {
-  clearLoggedInUser(); currentUser=null;
-  studentDashboard.classList.add('hidden');
-  loginScreen.classList.remove('hidden');
-  loginForm.reset();
+document.getElementById('student-sidebar-toggle-btn').addEventListener('click', () => document.getElementById('student-sidebar').classList.toggle('open'));
+document.getElementById('student-logout-btn').addEventListener('click', () => {
+  currentUser=null; sessionStorage.removeItem('school_user');
+  document.getElementById('student-dashboard').classList.add('hidden');
+  document.getElementById('login-screen').classList.remove('hidden');
+  document.getElementById('login-form').reset();
 });
-closeResultDetailsBtn.addEventListener('click', () => { studentResultsDetails.classList.add('hidden'); studentResultsList.scrollIntoView({behavior:'smooth'}); });
+document.getElementById('student-profile-btn').addEventListener('click', () => {
+  document.getElementById('student-sidebar').querySelectorAll('button[data-section]').forEach(b=>b.getAttribute('data-section')==='profile'?b.classList.add('bg-indigo-100'):b.classList.remove('bg-indigo-100'));
+  showStudentSection('student-profile-section');
+  document.getElementById('sp-name').value=currentUser.name||'';
+  document.getElementById('sp-email').value=currentUser.email||'';
+  document.getElementById('sp-phone').value=currentUser.phone||'';
+  document.getElementById('sp-username').value=currentUser.username||'';
+  document.getElementById('sp-password').value='';
+});
 
-// Student attendance filters
-studentFilterBatchSelect.addEventListener('change', () => updateStudentAttendance());
-studentFilterMonthInput.addEventListener('change',  () => { if(studentFilterMonthInput.value) studentFilterDateInput.value=''; updateStudentAttendance(); });
-studentFilterDateInput.addEventListener('change',   () => { if(studentFilterDateInput.value) studentFilterMonthInput.value=''; updateStudentAttendance(); });
-
-// Student profile form
-studentProfileForm.addEventListener('submit', e => {
+document.getElementById('student-profile-form').addEventListener('submit', async e => {
   e.preventDefault();
-  const name  = studentNameInputProfile.value.trim();
-  const email = studentEmailInputProfile.value.trim();
-  const phone = studentPhoneInputProfile.value.trim();
-  const nu    = studentUsernameInputProfile.value.trim();
-  const np    = studentPasswordInputProfile.value;
-  if (!name||!phone||!nu) { showToast('Fill all required fields.','error'); return; }
-  const users = getUsers();
-  const idx = users.findIndex(u => u.id===currentUser.id);
-  if (idx===-1) { showToast('Student not found.','error'); return; }
-  if (users.some((u,i)=>u.username.toLowerCase()===nu.toLowerCase()&&i!==idx)) { showToast('Username exists.','error'); return; }
-  users[idx] = { ...users[idx], name, email, phone, username:nu };
-  if (np.trim()) users[idx].password = np;
-  setUsers(users);
-  currentUser=users[idx];
-  setLoggedInUser(currentUser);
-  studentUsernameDisplay.textContent=currentUser.name;
-  studentNameDisplay.textContent=currentUser.name;
-  showToast('Profile updated.','success');
+  const name=document.getElementById('sp-name').value.trim(), email=document.getElementById('sp-email').value.trim(),
+    phone=document.getElementById('sp-phone').value.trim(), username=document.getElementById('sp-username').value.trim(),
+    newPass=document.getElementById('sp-password').value;
+  if (!name||!phone||!username) { showToast('Fill required fields.','error'); return; }
+  const password=newPass.trim()||currentUser.password;
+  const res = await api('PUT',`/api/users/${currentUser.id}`,{...currentUser,name,email,phone,username,password});
+  if (res.success) {
+    currentUser=res.user; sessionStorage.setItem('school_user',JSON.stringify(currentUser));
+    document.getElementById('student-username-display').textContent=currentUser.name;
+    document.getElementById('student-name-display').textContent=currentUser.name;
+    showToast('Profile updated.','success');
+  } else showToast(res.message||'Error','error');
 });
 
-// =====================================================================
-// LOGIN
-// =====================================================================
-loginForm.addEventListener('submit', e => {
-  e.preventDefault();
-  const role     = roleSelect.value;
-  const username = usernameInput.value.trim();
-  const password = passwordInput.value;
-  if (!role||!username||!password) { showToast('Fill all login fields.','error'); return; }
-  const users = getUsers();
-  if (!users.length) { showToast('No users found. Disable private/incognito mode.','error',7000); return; }
-  const user = users.find(u => u.username===username && u.password===password && u.role===role);
-  if (!user) { showToast('Invalid credentials. Default — Admin: admin/admin123 | Student: student1/student123','error',6000); return; }
-  currentUser = user;
-  setLoggedInUser(user);
-  loginScreen.classList.add('hidden');
-  if (role==='admin') {
-    adminDashboard.classList.remove('hidden');
-    adminUsernameDisplay.textContent = currentUser.name;
-    showAdminSection('admin-dashboard-section');
-    adminNavButtons.forEach(b => b.getAttribute('data-section')==='dashboard' ? b.classList.add('bg-indigo-100') : b.classList.remove('bg-indigo-100'));
-  } else {
-    studentDashboard.classList.remove('hidden');
-    studentUsernameDisplay.textContent = currentUser.name;
-    studentNameDisplay.textContent = currentUser.name;
-    populateStudentFilterBatches();
-    updateStudentAttendance();
-    updateStudentExamSchedule();
-    updateStudentResultsList();
-    showStudentSection('student-dashboard-section');
-    studentNavButtons.forEach(b => b.getAttribute('data-section')==='dashboard' ? b.classList.add('bg-indigo-100') : b.classList.remove('bg-indigo-100'));
-  }
-  loginForm.reset();
+document.getElementById('student-open-attendance').addEventListener('click', async () => {
+  showStudentSection('student-attendance-section');
+  const res = await api('GET',`/api/attendance?student_id=${currentUser.id}`);
+  if (res.success) renderStudentAttendance(res.attendance);
+});
+document.getElementById('student-filter-month').addEventListener('change', async () => {
+  if(document.getElementById('student-filter-month').value) document.getElementById('student-filter-date').value='';
+  const month=document.getElementById('student-filter-month').value, date=document.getElementById('student-filter-date').value;
+  let url=`/api/attendance?student_id=${currentUser.id}`;
+  if(month) url+=`&month=${month}`; if(date) url+=`&date=${date}`;
+  const res=await api('GET',url); if(res.success) renderStudentAttendance(res.attendance);
+});
+document.getElementById('student-filter-date').addEventListener('change', async () => {
+  if(document.getElementById('student-filter-date').value) document.getElementById('student-filter-month').value='';
+  const date=document.getElementById('student-filter-date').value;
+  let url=`/api/attendance?student_id=${currentUser.id}`; if(date) url+=`&date=${date}`;
+  const res=await api('GET',url); if(res.success) renderStudentAttendance(res.attendance);
+});
+function renderStudentAttendance(records) {
+  const tbody=document.getElementById('student-attendance-records');
+  tbody.innerHTML='';
+  records.forEach(r => {
+    const tr=document.createElement('tr'); tr.className='hover:bg-indigo-100';
+    tr.innerHTML=`<td class="py-2 px-4">${formatDate(r.date)}</td><td class="py-2 px-4">${formatDay(r.date)}</td><td class="py-2 px-4 font-semibold ${r.status==='Present'?'text-green-600':'text-red-600'}">${r.status}</td><td class="py-2 px-4">${getBatchName(r.batch_id)}</td>`;
+    tbody.appendChild(tr);
+  });
+}
+
+document.getElementById('student-open-exam-schedule').addEventListener('click', async () => {
+  showStudentSection('student-exam-schedule-section');
+  const batchId = currentUser.batch_id;
+  const res = await api('GET',`/api/exams${batchId?`?batch_id=${batchId}`:''}`);
+  const tbody=document.getElementById('student-exam-schedule');
+  tbody.innerHTML='';
+  if (res.success) res.exams.forEach(e => {
+    const tr=document.createElement('tr'); tr.className='hover:bg-indigo-100';
+    tr.innerHTML=`<td class="py-2 px-4">${e.name}</td><td class="py-2 px-4">${formatDate(e.date)}</td><td class="py-2 px-4">${to12Hour(e.time)}</td>`;
+    tbody.appendChild(tr);
+  });
 });
 
+document.getElementById('student-open-results').addEventListener('click', async () => {
+  showStudentSection('student-results-section');
+  const res = await api('GET',`/api/results?student_id=${currentUser.id}`);
+  const div=document.getElementById('student-results-list');
+  div.innerHTML='';
+  document.getElementById('student-results-details').classList.add('hidden');
+  if (!res.success||!res.results.length) { div.innerHTML='<p class="text-gray-600">No results yet.</p>'; return; }
+  const grouped={};
+  res.results.forEach(r=>{ const key=`${r.title}||${r.result_date}`; if(!grouped[key]) grouped[key]=[]; grouped[key].push(r); });
+  Object.entries(grouped).forEach(([key,arr]) => {
+    const [title,resultDate]=key.split('||');
+    const card=document.createElement('div');
+    card.className='bg-indigo-50 rounded-md shadow-md p-4 cursor-pointer hover:bg-indigo-100 transition';
+    card.innerHTML=`<h5 class="text-lg font-semibold text-indigo-700">${title} (${formatDate(resultDate)})</h5>`;
+    card.onclick=()=>{
+      document.getElementById('result-details-title').textContent=`${title} (${formatDate(resultDate)})`;
+      document.getElementById('result-details-tbody').innerHTML=arr.map(r=>`<tr class="hover:bg-indigo-100"><td class="py-2 px-4">${r.subject}</td><td class="py-2 px-4">${r.marks_obtained}</td><td class="py-2 px-4">${r.total_marks}</td></tr>`).join('');
+      document.getElementById('student-results-details').classList.remove('hidden');
+      document.getElementById('student-results-details').scrollIntoView({behavior:'smooth'});
+    };
+    div.appendChild(card);
+  });
+});
+document.getElementById('close-result-details').addEventListener('click', () => document.getElementById('student-results-details').classList.add('hidden'));
+
 // =====================================================================
-// INITIAL LOAD (resume session)
+// INIT ADMIN DASHBOARD
 // =====================================================================
-if (currentUser) {
-  loginScreen.classList.add('hidden');
-  if (currentUser.role==='admin') {
-    adminDashboard.classList.remove('hidden');
-    adminUsernameDisplay.textContent = currentUser.name;
-    showAdminSection('admin-dashboard-section');
-    adminNavButtons.forEach(b => b.getAttribute('data-section')==='dashboard' ? b.classList.add('bg-indigo-100') : b.classList.remove('bg-indigo-100'));
+function initAdminDashboard() {
+  document.getElementById('student-dashboard').classList.add('hidden');
+  document.getElementById('admin-dashboard').classList.remove('hidden');
+  document.getElementById('admin-username-display').textContent = currentUser.name;
+  showAdminSection('admin-dashboard-section');
+  document.querySelector('nav.w-64').querySelectorAll('button[data-section]').forEach(b=>b.getAttribute('data-section')==='dashboard'?b.classList.add('bg-indigo-100'):b.classList.remove('bg-indigo-100'));
+}
+
+// =====================================================================
+// APP INIT
+// =====================================================================
+async function initApp() {
+  const overlay = document.getElementById('loading-overlay');
+  const stored = sessionStorage.getItem('school_user');
+  if (stored) {
+    try {
+      currentUser = JSON.parse(stored);
+      await loadAllData();
+      overlay.classList.add('hidden');
+      if (currentUser.role==='admin') initAdminDashboard();
+      else initStudentDashboard();
+    } catch(e) {
+      sessionStorage.removeItem('school_user');
+      overlay.classList.add('hidden');
+      document.getElementById('login-screen').classList.remove('hidden');
+      document.getElementById('login-screen').classList.add('flex');
+    }
   } else {
-    studentDashboard.classList.remove('hidden');
-    studentUsernameDisplay.textContent = currentUser.name;
-    studentNameDisplay.textContent = currentUser.name;
-    populateStudentFilterBatches();
-    updateStudentAttendance();
-    updateStudentExamSchedule();
-    updateStudentResultsList();
-    showStudentSection('student-dashboard-section');
-    studentNavButtons.forEach(b => b.getAttribute('data-section')==='dashboard' ? b.classList.add('bg-indigo-100') : b.classList.remove('bg-indigo-100'));
+    overlay.classList.add('hidden');
+    document.getElementById('login-screen').classList.remove('hidden');
+    document.getElementById('login-screen').classList.add('flex');
   }
 }
+initApp();
 </script>
 </body>
 </html>
