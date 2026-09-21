@@ -32,68 +32,73 @@
 
 ## 🎯 Features
 
+<details>
 <summary><b>👨‍💼 Administrator Features</b></summary>
 
-### 📊 **Comprehensive Dashboard**
+### 📊 Comprehensive Dashboard
 - Real-time overview of all academic activities
 - Quick access to all management modules
 
-### 👥 **Student Management**
+### 👥 Student Management
 - ➕ Add new students with batch assignment
 - ✏️ Edit existing student profiles
 - 🗑️ Remove students with data cleanup
 - 🔑 Manage login credentials securely
 
-### 📅 **Attendance Tracking**
+### 📅 Attendance Tracking
 - 📝 Mark daily attendance with date selection
 - 📧 Automatic email notifications to students
 - 🔍 Advanced filtering (by batch, student, date, month)
 - 📈 Attendance history and analytics
 
-### 🎓 **Examination Management**
+### 🎓 Examination Management
 - 📋 Create and schedule examinations
 - 🏫 Batch-wise exam organization
 - ⏰ Time management with 12-hour format
 - 📧 Automated notifications to all batch students
 
-### 📊 **Result Management**
+### 📊 Result Management
 - 📝 Subject-wise result entry
 - 🎯 Detailed marks breakdown
 - 📧 Result notification system
 - 📈 Performance tracking
 
-### 🏷️ **Batch Organization**
+### 🏷️ Batch Organization
 - 🆕 Create and manage student batches
 - 🗂️ Organize students by academic groups
 - 🔄 Easy batch reassignment
----
+
+</details>
+
+<details>
 <summary><b>👨‍🎓 Student Features</b></summary>
 
-### 🏠 **Personal Dashboard**
+### 🏠 Personal Dashboard
 - Personalized welcome interface
 - Quick access to academic information
 - Overview of recent activities
 
-### 📊 **Attendance Portal**
+### 📊 Attendance Portal
 - 📅 View personal attendance records
 - 🔍 Filter by date ranges and batches
 - 📈 Attendance percentage tracking
 
-### 📚 **Examination Schedule**
+### 📚 Examination Schedule
 - 📋 View upcoming examinations
 - ⏰ Exam timings and details
 - 📧 Receive schedule updates
 
-### 🎯 **Results Center**
+### 🎯 Results Center
 - 📊 Detailed subject-wise results
 - 🔍 Clickable result cards for detailed view
 - 📈 Performance analysis
 
-### ⚙️ **Profile Management**
+### ⚙️ Profile Management
 - ✏️ Update personal information
 - 🔐 Change login credentials
 - 📧 Manage contact details
 
+</details>
 
 ---
 
@@ -125,8 +130,6 @@
 
 ### 📋 Prerequisites
 
-Before you begin, ensure you have the following installed:
-
 - 🟢 **Node.js** (v14.0.0 or higher)
 - 📦 **npm** or **yarn** package manager
 - 📧 **Gmail Account** (for email functionality)
@@ -136,48 +139,38 @@ Before you begin, ensure you have the following installed:
 <details>
 <summary><b>🔧 Step-by-Step Setup</b></summary>
 
-#### 1️⃣ **Clone the Repository**
+#### 1️⃣ Clone the Repository
 ```bash
-git clone https://github.com/your-username/school-tracking-system.git
-cd school-tracking-system
+git clone https://github.com/Sapan02206/school-tracking-app.git
+cd school-tracking-app
 ```
 
-#### 2️⃣ **Install Dependencies**
+#### 2️⃣ Install Dependencies
 ```bash
 npm install
-# or
-yarn install
 ```
 
-#### 3️⃣ **Configure Email Settings**
+#### 3️⃣ Configure Environment Variables
 
-**🔐 Gmail App Password Setup:**
+Create a `.env` file in the root directory:
+```
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASS=your-16-digit-app-password
+PORT=3000
+```
+
+**Gmail App Password Setup:**
 1. Enable 2-Factor Authentication on your Gmail
-2. Generate App Password:
-   - Google Account → Security → 2-Step Verification → App passwords
-   - Select "Mail" and generate password
+2. Go to Google Account → Security → 2-Step Verification → App passwords
+3. Select "Mail" and generate the password
 
-**⚙️ Update Configuration:**
-```javascript
-// In server.js, update these lines:
-const transporter = nodemailer.createTransporter({
-  service: 'gmail',
-  auth: {
-    user: 'your-email@gmail.com',        // 👈 Your Gmail
-    pass: 'your-16-digit-app-password',  // 👈 Your App Password
-  },
-});
-```
-
-#### 4️⃣ **Launch the Application**
+#### 4️⃣ Launch the Application
 ```bash
 npm start
-# or
-node server.js
 ```
 
-#### 5️⃣ **Access the System**
-🌐 Open your browser and navigate to: **http://localhost:3000**
+#### 5️⃣ Access the System
+Open your browser and navigate to: **http://localhost:3000**
 
 </details>
 
@@ -193,7 +186,7 @@ node server.js
 | 🆔 **Username** | `admin` |
 | 🔑 **Password** | `admin123` |
 
-### 👨‍🎓 Student Access (Demo Accounts)
+### 👨‍🎓 Student Access (Demo)
 | Student | Username | Password |
 |---------|----------|----------|
 | 👤 **John Doe** | `student1` | `student123` |
@@ -208,13 +201,13 @@ node server.js
 ## 📁 Project Structure
 
 ```
-🎓 school-tracking-system/
-├── 🚀 server.js                 # Express.js backend server
-├── 📁 public/
-│   └── 🌐 index (6).html        # Main frontend application
-├── 📦 package.json              # Project dependencies & scripts
-├── 📖 README.md                 # Project documentation
-└── 🔧 .gitignore               # Git ignore rules
+school-tracking-app/
+├── server.js              # Express.js backend server
+├── public/
+│   └── index.html         # Main frontend application
+├── package.json           # Project dependencies & scripts
+├── .env                   # Environment variables (not committed)
+└── README.md              # Project documentation
 ```
 
 ---
@@ -279,28 +272,19 @@ Content-Type: application/json
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| 🧪 **GET** | `/test-email` | Test email configuration |
-| 🏠 **GET** | `/` | Serve main application |
+| **GET** | `/test-email` | Test email configuration |
+| **GET** | `/` | Serve main application |
 
 </details>
 
 ---
 
----
+## 🎨 UI Highlights
 
-## 🎨 User Interface Highlights
-
-### 🎯 **Design Philosophy**
-- **Minimalist Approach**: Clean, distraction-free interface
-- **Intuitive Navigation**: Logical flow and easy-to-find features
-- **Responsive Design**: Seamless experience across all devices
-- **Accessibility First**: ARIA labels and keyboard navigation support
-
-### 📱 **Mobile Experience**
+- **Minimalist Design**: Clean, distraction-free interface
+- **Responsive Layout**: Works seamlessly on all screen sizes
+- **Collapsible Sidebar**: Space-efficient mobile navigation
 - **Touch-Optimized**: Large buttons and touch-friendly interactions
-- **Collapsible Sidebar**: Space-efficient navigation on mobile
-- **Responsive Tables**: Horizontal scrolling for data tables
-- **Mobile-First CSS**: Optimized for smaller screens
 
 ---
 
@@ -309,109 +293,47 @@ Content-Type: application/json
 <details>
 <summary><b>🛡️ Security Implementations</b></summary>
 
-### 🔐 **Authentication**
 - Role-based access control (Admin/Student)
 - Secure password handling
-- Session management via localStorage
-
-### 🛡️ **Data Protection**
 - Input validation and sanitization
-- XSS protection measures
 - CORS configuration for API security
-
-### 📧 **Email Security**
-- App Password authentication
-- Secure SMTP connection
-- Rate limiting considerations
+- App Password authentication for email
 
 </details>
 
 ---
 
-## 🚀 Deployment Guide
+## 🚀 Deployment
 
 <details>
-<summary><b>☁️ Cloud Deployment Options</b></summary>
+<summary><b>☁️ Render Deployment (Recommended)</b></summary>
 
-### 🌐 **Heroku Deployment**
-```bash
-# Install Heroku CLI
-npm install -g heroku
-
-# Login and create app
-heroku login
-heroku create your-school-app
-
-# Set environment variables
-heroku config:set EMAIL_USER=your-email@gmail.com
-heroku config:set EMAIL_PASS=your-app-password
-
-# Deploy
-git push heroku main
-```
-
-### ⚡ **Vercel Deployment**
-```bash
-# Install Vercel CLI
-npm install -g vercel
-
-# Deploy
-vercel --prod
-```
-
-### 🐳 **Docker Deployment**
-```dockerfile
-FROM node:16-alpine
-WORKDIR /app
-COPY package*.json ./
-RUN npm install
-COPY . .
-EXPOSE 3000
-CMD ["node", "server.js"]
-```
+1. Push your code to GitHub
+2. Go to [render.com](https://render.com) and create a new Web Service
+3. Connect your GitHub repository
+4. Set environment variables:
+   - `EMAIL_USER` = your Gmail address
+   - `EMAIL_PASS` = your App Password
+5. Deploy — Render will auto-detect `npm start`
 
 </details>
 
----
 <details>
-<summary><b>🔧 Development Setup</b></summary>
+<summary><b>⚡ Vercel Deployment</b></summary>
 
-### 1️⃣ **Fork & Clone**
-```bash
-git clone https://github.com/your-username/school-tracking-system.git
-cd school-tracking-system
-```
-
-### 2️⃣ **Create Feature Branch**
-```bash
-git checkout -b feature/amazing-feature
-```
-
-### 3️⃣ **Make Changes**
-- Follow existing code style
-- Add comments for complex logic
-- Test thoroughly
-
-### 4️⃣ **Commit & Push**
-```bash
-git commit -m "✨ Add amazing feature"
-git push origin feature/amazing-feature
-```
-
-### 5️⃣ **Create Pull Request**
-- Describe your changes clearly
-- Include screenshots if UI changes
-- Reference any related issues
+1. Push your code to GitHub
+2. Go to [vercel.com](https://vercel.com) and import your repository
+3. Set environment variables in Project Settings
+4. Deploy
 
 </details>
 
 ---
+
+<div align="center">
 
 **Made with ❤️ for the Education Community**
 
 *Empowering schools, one line of code at a time.*
 
 </div>
-```
-```
-
