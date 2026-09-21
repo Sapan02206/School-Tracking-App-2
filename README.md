@@ -12,6 +12,8 @@
 
 *A comprehensive, modern web-based school management solution that bridges the gap between administrators, students, and academic excellence.*
 
+### 🌐 [Live Demo → Click Here to Open the App](https://school-tracking-app-2.vercel.app)
+
 ---
 
 </div>
