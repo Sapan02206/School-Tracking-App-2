@@ -20,7 +20,7 @@ const pool = new Pool({
   port: 5432,
   database: 'postgres',
   user: 'postgres.tcmpovdqpnixcnkswbnx',
-  password: process.env.DB_PASSWORD || 'SchoolSapandesai',
+  password: process.env.DB_PASSWORD,
   ssl: { rejectUnauthorized: false },
 });
 
@@ -37,8 +37,8 @@ const transporter = nodemailer.createTransport({
   port: 465,
   secure: true,
   auth: {
-    user: process.env.EMAIL_USER || 'codewithsapan007@gmail.com',
-    pass: process.env.EMAIL_PASS || 'nmyrxgughefapwpo',
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
   },
 });
 
@@ -46,7 +46,7 @@ async function sendEmail(to, subject, text) {
   if (!to) return { success: false, error: 'No email address' };
   try {
     const info = await transporter.sendMail({
-      from: '"School Admin" <codewithsapan007@gmail.com>',
+      from: `"School Admin" <${process.env.EMAIL_USER}>`,
       to, subject, text,
     });
     console.log('Email sent:', info.messageId);
